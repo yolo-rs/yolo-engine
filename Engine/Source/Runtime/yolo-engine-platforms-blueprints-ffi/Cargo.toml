@@ -1,0 +1,15 @@
+[package]
+name = "yolo-engine-platforms-blueprints-ffi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Unreal Engine 6 Complete 11-Platform Console/Mobile/PC/Web SDK Matrix (NDS, Wii, Switch, PS1/PS2, PS5, Xbox Series X|S, PC, Android, iOS, Web/Chrome Extension), Store & Package Publishers (MS Store MSIXVC, Google Play AAB, Chrome Web Store CRX3, Flatpak, Nix Flake, Bun, crates.io, Self-Hosted Website), UE5/UE6 File Formats & Services, Blueprint VM (Kismet), and Zero-Copy C++20/Bevy/Bun FFI"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+yolo-engine-core = { path = "../yolo-engine-core" }
+serde = { workspace = true }

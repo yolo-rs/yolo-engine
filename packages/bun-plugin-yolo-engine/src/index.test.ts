@@ -15,7 +15,7 @@ import {
 const ENGINE_ROOT = resolve(import.meta.dir, "../../..");
 
 describe("@yolo-rs/bun-plugin-yolo-engine — Virtual Modules & UE6 Asset Loaders", () => {
-  test("exposes all 17 yolo:* virtual modules in YOLO_VIRTUAL_MODULES and via runtime import", async () => {
+  test("exposes all 20 yolo:* virtual modules in YOLO_VIRTUAL_MODULES and via runtime import", async () => {
     const requiredModules = [
       "yolo:engine",
       "yolo:bevy",
@@ -34,6 +34,9 @@ describe("@yolo-rs/bun-plugin-yolo-engine — Virtual Modules & UE6 Asset Loader
       "yolo:level5",
       "yolo:bandai",
       "yolo:zig",
+      "yolo:platforms",
+      "yolo:blueprints",
+      "yolo:publish",
     ];
     for (const modName of requiredModules) {
       expect(YOLO_VIRTUAL_MODULES[modName]).toBeDefined();

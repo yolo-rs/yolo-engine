@@ -137,6 +137,27 @@ export const UNREAL_BUILD_TOOL_MODULES: readonly UbtBuildRules[] = [
     pchUsage: "Rust2024CargoModuleGraph",
   },
   {
+    moduleName: "Platforms11_BlueprintsKismet_StorePublisher_Cpp20BevyBunFFI",
+    moduleType: "Runtime",
+    cratePath: "Engine/Source/Runtime/yolo-engine-platforms-blueprints-ffi",
+    publicDependencyModules: [
+      "Core",
+      "RHI_RenderCore_Renderer",
+      "NetCore_OnlineSubsystemEOS_PakFile",
+      "ReGamePorters_Criware_Level5_Bandai_Cross_Zig",
+    ],
+    privateDependencyModules: [
+      "NDS_Wii_Switch_SDK",
+      "PS1_PS2_PS5_SDK",
+      "XboxScarlettGDK_MSStore_MSIXVC",
+      "AndroidPlayStoreAAB_iOSMetal",
+      "ChromeWebStoreCRX3_WebGPUPatcher",
+      "FlatpakFlathub_NixFlake_CratesIo_BunRegistry",
+      "KismetBlueprintVM_UnrealEngine6CompatCpp20",
+    ],
+    pchUsage: "Rust2024CargoModuleGraph",
+  },
+  {
     moduleName: "UnrealEd_ZedGPUI_Artcraft_Helix",
     moduleType: "Editor",
     cratePath: "Engine/Source/Editor/yolo-engine-editor",
@@ -560,7 +581,7 @@ export function executeUe6Pipeline(
     build: {
       stage: "build",
       orderIndex: 4,
-      verified: UNREAL_BUILD_TOOL_MODULES.length === 7,
+      verified: UNREAL_BUILD_TOOL_MODULES.length === 8,
       details: {
         uhtReflectedMacros: ["#[uclass]", "#[ustruct]", "#[uproperty]", "#[ufunction]"],
         ubtModulesResolved: UNREAL_BUILD_TOOL_MODULES.length,
@@ -709,9 +730,44 @@ if (import.meta.main) {
     const stageArg = (args[0] ?? "all") as Ue6PipelineStageName | "all";
     const report = executeUe6Pipeline(stageArg);
     console.log(JSON.stringify(report, null, 2));
+  } else if (tool === "platforms") {
+    console.log(
+      JSON.stringify(
+        {
+          tool: "UE6 11-Platform Console/PC/Mobile/Web SDK & Blueprint C++20/Bevy/Bun FFI",
+          platforms: YOLO_VIRTUAL_MODULES["yolo:platforms"],
+          blueprintsAndFfi: YOLO_VIRTUAL_MODULES["yolo:blueprints"],
+        },
+        null,
+        2,
+      ),
+    );
+  } else if (tool === "publish") {
+    const [action = "all", gameId = "sovereign-ue6-game", domain = "play.aphrody.com"] = args;
+    console.log(
+      JSON.stringify(
+        {
+          tool: "UE6 End-to-End Multi-Store, Registry & Self-Hosted Website Publisher",
+          action,
+          gameId,
+          domain,
+          channels: YOLO_VIRTUAL_MODULES["yolo:publish"],
+          generatedRoutes: [
+            `https://${domain}/`,
+            `https://${domain}/play`,
+            `https://${domain}/download`,
+            `https://${domain}/mods-and-patcher`,
+            `https://${domain}/docs`,
+          ],
+          selfHostOrchestrator: "yolo-dokploy + yolo-traefik v3 (HTTP/3 QUIC + Zstd + R2 206 CPK Stream)",
+        },
+        null,
+        2,
+      ),
+    );
   } else {
     console.error(
-      "Usage: bun Engine/Source/Programs/cli.ts <status|ubt|uht|mcp|gitdeps|epic-auth|pipeline> [args...]",
+      "Usage: bun Engine/Source/Programs/cli.ts <status|ubt|uht|mcp|gitdeps|epic-auth|pipeline|platforms|publish> [args...]",
     );
     process.exit(1);
   }

@@ -7,6 +7,7 @@ members = [
     "Engine/Source/Runtime/yolo-engine-render",
     "Engine/Source/Runtime/yolo-engine-online",
     "Engine/Source/Runtime/yolo-engine-re-game-porters",
+    "Engine/Source/Runtime/yolo-engine-platforms-blueprints-ffi",
     "Engine/Source/Editor/yolo-engine-editor",
 ]
 exclude = [

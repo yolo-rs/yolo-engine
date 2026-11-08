@@ -18,6 +18,8 @@
     "gitdeps": "bun Engine/Source/Programs/cli.ts gitdeps",
     "epic:auth": "bun Engine/Source/Programs/cli.ts epic-auth",
     "pipeline": "bun Engine/Source/Programs/cli.ts pipeline",
+    "platforms": "bun Engine/Source/Programs/cli.ts platforms",
+    "publish:game": "bun Engine/Source/Programs/cli.ts publish",
     "vps:sync": "bun deploy/vps/sync-ue6-vps.ts",
     "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts ./packages/bun-plugin-yolo-engine/src/index.test.ts ./packages/epic-games-sdk/src/index.test.ts",
     "cloud:deploy": "bun deploy/streaming/cluster-orchestrator.ts",

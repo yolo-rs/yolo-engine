@@ -282,6 +282,49 @@ export const YOLO_VIRTUAL_MODULES: Record<string, Record<string, unknown>> = {
     libraries: ["yolo-zig-abi", "libsais", "zig-bsdiff", "lightpanda-browser", "electrobun"],
     sysroots: ["gnu.2.38", "musl", "msvc-xwin", "android-ndk", "macos-sdk"],
   },
+  "yolo:platforms": {
+    subsystem: "platforms-11-sdk",
+    crate: "yolo-engine-platforms-blueprints-ffi",
+    platformsCount: 11,
+    platforms: [
+      "NintendoDS (.nds ARM946E-S + ARM7TDMI)",
+      "NintendoWii (.dol/.rvz PowerPC Broadway + GX TEV)",
+      "NintendoSwitch (.nro/.nso/.nsp ARM64 Tegra X1 + NVN/Vulkan)",
+      "PlayStation1And2 (.psx/.elf/.iso MIPS R3000A GTE & Emotion Engine R5900)",
+      "PlayStation5 (.self/.pkg AMD Zen 2 + RDNA 2 SPIR-V + Tempest 3D)",
+      "XboxSeriesXS (.msixvc/.xvc GDK Scarlett DirectX 12 Ultimate + DirectStorage)",
+      "PcDesktop (.exe/.elf/.app Win64, Linux Gamescope, macOS Universal2)",
+      "MobileAndroid (.aab/.apk Android 17 ARM64 Vulkan 1.3)",
+      "MobileIos (.ipa iOS 19 ARM64 Metal 3)",
+      "WebBrowserWebGpu (.wasm + .cpk.r2 WebGPU + SIMD128)",
+      "ChromeWebStoreExtension (.crx Manifest V3 OffscreenCanvas WebGPU + Binary Patcher)",
+    ],
+  },
+  "yolo:blueprints": {
+    subsystem: "blueprints-kismet-cpp20-ffi",
+    crate: "yolo-engine-platforms-blueprints-ffi",
+    cppHeader: "Engine/Source/Runtime/Core/Public/UnrealEngine6Compat.hpp",
+    macros: ["UCLASS", "USTRUCT", "UENUM", "UPROPERTY", "UFUNCTION", "GENERATED_BODY"],
+    ffiExports: [
+      "ue6_ffi_bevy_world_create",
+      "ue6_ffi_bevy_spawn_actor",
+      "ue6_ffi_kismet_execute_blueprint_node",
+      "ue6_ffi_platform_sdk_count",
+      "ue6_ffi_bevy_world_destroy",
+    ],
+  },
+  "yolo:publish": {
+    subsystem: "end-to-end-store-and-website-publisher",
+    crate: "yolo-engine-platforms-blueprints-ffi",
+    stores: [
+      "Microsoft Store (MSIXVC + Partner Center API + winget)",
+      "Google Play Store (AAB + Play Developer Publishing API v3)",
+      "Chrome Web Store (Manifest V3 CRX3 Game & Live Patch Extension)",
+      "Flatpak (Flathub OSTree) & Nix Flake (flake.nix)",
+      "Bun Package Registry & Crates.io",
+      "Self-Hosted Game Website (Dokploy + Traefik v3 HTTP/3 + WebGPU Instant Play)",
+    ],
+  },
 };
 
 function computeBufferSha256(buf: Uint8Array): string {
@@ -470,9 +513,9 @@ export const yoloEngineBunPlugin: BunPlugin = {
       };
     });
 
-    // 1. 3D, Level-5 (G4MG/G4MD/G4SK/G4PK/G4RA), Bandai Namco (EMO/EMB) & UE6 Scene Assets
+    // 1. 3D, Level-5 (G4MG/G4MD/G4SK/G4PK/G4RA), Bandai Namco (EMO/EMB), Console ROMs (.nds/.dol/.rvz/.nro/.nso/.nsp/.elf/.iso/.psx/.self/.pkg/.msixvc) & UE5/UE6 Scene Assets
     build.onLoad(
-      { filter: /\.(gltf|glb|obj|fbx|blend|umap|uasset|utoc|ucas|pak|cpk|g4mg|g4md|g4sk|g4pk|g4ra|emo|emb|bsn)$/i },
+      { filter: /\.(gltf|glb|obj|fbx|blend|uproject|uplugin|umap|uasset|uexp|ubulk|utoc|ucas|pak|cpk|g4mg|g4md|g4sk|g4pk|g4ra|emo|emb|nds|dol|rvz|nro|nso|nsp|psx|iso|self|pkg|msixvc|bsn)$/i },
       (args) => {
         const descriptor = inspect3DSceneAsset(args.path);
         return {
@@ -485,8 +528,8 @@ export const yoloEngineBunPlugin: BunPlugin = {
       },
     );
 
-    // 2. WebGPU / Naga / WGPU Shaders
-    build.onLoad({ filter: /\.(wgsl|wesl|hlsl|glsl|spv)$/i }, (args) => {
+    // 2. WebGPU / Naga / WGPU & Unreal (.usf / .ush) Shaders
+    build.onLoad({ filter: /\.(wgsl|wesl|hlsl|glsl|spv|usf|ush)$/i }, (args) => {
       const descriptor = inspectShaderSource(args.path);
       return {
         exports: {

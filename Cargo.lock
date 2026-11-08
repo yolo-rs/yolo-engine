@@ -131,6 +131,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "yolo-engine-platforms-blueprints-ffi"
+version = "6.0.0"
+dependencies = [
+ "serde",
+ "yolo-engine-core",
+]
+
+[[package]]
 name = "yolo-engine-re-game-porters"
 version = "6.0.0"
 dependencies = [
