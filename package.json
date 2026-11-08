@@ -16,7 +16,8 @@
     "uht": "bun Engine/Source/Programs/cli.ts uht",
     "mcp": "bun Engine/Source/Programs/cli.ts mcp",
     "gitdeps": "bun Engine/Source/Programs/cli.ts gitdeps",
-    "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts",
+    "epic:auth": "bun Engine/Source/Programs/cli.ts epic-auth",
+    "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts ./packages/epic-games-sdk/src/index.test.ts",
     "cloud:deploy": "bun deploy/streaming/cluster-orchestrator.ts",
     "r2:cpk:serve": "bun packages/yolo-cpk-stream/src/serve.ts"
   }

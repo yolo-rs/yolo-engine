@@ -1,0 +1,11 @@
+[package]
+name = "epic-games-eos-sys"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Raw C ABI FFI bindings and hermetic C shim for Epic Online Services (EOS) SDK (`eos_sdk.h`) in YOLO Engine 6.0 (UE6)"
+links = "eossdk"
+
+[dependencies]

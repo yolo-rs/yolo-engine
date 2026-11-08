@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "epic-games-auth"
+version = "6.0.0"
+dependencies = [
+ "epic-games-eos-sys",
+ "serde",
+]
+
+[[package]]
+name = "epic-games-eos-sys"
+version = "6.0.0"
+
+[[package]]
 name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -113,6 +125,8 @@ dependencies = [
 name = "yolo-engine-online"
 version = "6.0.0"
 dependencies = [
+ "epic-games-auth",
+ "epic-games-eos-sys",
  "serde",
 ]
 

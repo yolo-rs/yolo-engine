@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
+    "Engine/Source/ThirdParty/EOSSDK/epic-games-eos-sys",
+    "Engine/Source/Runtime/epic-games-auth",
     "Engine/Source/Runtime/yolo-engine-core",
     "Engine/Source/Runtime/yolo-engine-render",
     "Engine/Source/Runtime/yolo-engine-online",

@@ -9,6 +9,14 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import {
+  buildEpicAuthorizeUrl,
+  DEFAULT_EPIC_OAUTH_CONFIG,
+  EPIC_OAUTH_ENDPOINTS,
+  generateEpicPkcePair,
+  parseEpicLauncherCliArgs,
+  resolveEosNativeSdk,
+} from "../../../packages/epic-games-sdk/src/index.ts";
 
 const rawDir = import.meta.dir;
 export const ENGINE_ROOT =
@@ -63,6 +71,22 @@ export interface UnrealMcpSkillDescriptor {
 }
 
 export const UNREAL_BUILD_TOOL_MODULES: readonly UbtBuildRules[] = [
+  {
+    moduleName: "EOSSDK_C_ABI",
+    moduleType: "ThirdParty",
+    cratePath: "Engine/Source/ThirdParty/EOSSDK/epic-games-eos-sys",
+    publicDependencyModules: [],
+    privateDependencyModules: [],
+    pchUsage: "Rust2024CargoModuleGraph",
+  },
+  {
+    moduleName: "EpicGamesAuth_OAuth2_EOS",
+    moduleType: "Runtime",
+    cratePath: "Engine/Source/Runtime/epic-games-auth",
+    publicDependencyModules: ["EOSSDK_C_ABI"],
+    privateDependencyModules: [],
+    pchUsage: "Rust2024CargoModuleGraph",
+  },
   {
     moduleName: "Core",
     moduleType: "Runtime",
@@ -470,9 +494,41 @@ if (import.meta.main) {
     );
   } else if (tool === "gitdeps") {
     console.log(JSON.stringify(loadThirdPartyForksManifest(), null, 2));
+  } else if (tool === "epic-auth") {
+    const pkce = generateEpicPkcePair();
+    const authorizeUrl = buildEpicAuthorizeUrl(
+      DEFAULT_EPIC_OAUTH_CONFIG,
+      "ue6_sovereign_state",
+      pkce,
+    );
+    const launcherArgs = parseEpicLauncherCliArgs(args);
+    const nativeSdk = resolveEosNativeSdk(ENGINE_ROOT);
+    console.log(
+      JSON.stringify(
+        {
+          tool: "EpicGamesAuth & EOS OAuth2 / C-ABI / Rust / TypeScript Suite (UE6)",
+          endpoints: EPIC_OAUTH_ENDPOINTS,
+          config: {
+            productName: DEFAULT_EPIC_OAUTH_CONFIG.productName,
+            productId: DEFAULT_EPIC_OAUTH_CONFIG.productId,
+            sandboxId: DEFAULT_EPIC_OAUTH_CONFIG.sandboxId,
+            deploymentId: DEFAULT_EPIC_OAUTH_CONFIG.deploymentId,
+            clientId: DEFAULT_EPIC_OAUTH_CONFIG.clientId,
+            redirectUri: DEFAULT_EPIC_OAUTH_CONFIG.redirectUri,
+            scopes: DEFAULT_EPIC_OAUTH_CONFIG.scopes,
+          },
+          pkceSample: pkce,
+          authorizeUrl,
+          launcherArgs,
+          nativeSdk,
+        },
+        null,
+        2,
+      ),
+    );
   } else {
     console.error(
-      "Usage: bun Engine/Source/Programs/cli.ts <status|ubt|uht|mcp|gitdeps> [args...]",
+      "Usage: bun Engine/Source/Programs/cli.ts <status|ubt|uht|mcp|gitdeps|epic-auth> [args...]",
     );
     process.exit(1);
   }

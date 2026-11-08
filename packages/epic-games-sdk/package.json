@@ -1,0 +1,16 @@
+{
+  "name": "@yolo-rs/epic-games-sdk",
+  "version": "6.0.0",
+  "description": "Epic Games OAuth2 (`api.epicgames.dev/epic/oauth/v2`), Epic Account Services (`EOS_Auth`), Game Services (`EOS_Connect`), Easy Anti-Cheat (`EAC`), and `bun:ffi` C SDK bindings for YOLO Engine 6.0 (UE6)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./oauth": "./src/oauth.ts",
+    "./ffi": "./src/ffi.ts"
+  },
+  "scripts": {
+    "test": "bun test ./src/index.test.ts"
+  }
+}

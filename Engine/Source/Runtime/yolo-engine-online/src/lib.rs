@@ -7,6 +7,13 @@
 //! - **PakFile / IoStore (`UToc` / `UCas` / `.cpk`)**: Zero-copy HTTP Range & QUIC streaming of 60GB+ asset containers from Cloudflare R2.
 
 use serde::{Deserialize, Serialize};
+pub use epic_games_auth::{
+    build_epic_authorize_url, build_epic_token_request_body, format_epic_basic_auth_header,
+    EEpicAuthScope, EEpicOAuthGrantType, FEosPlatformRuntime, FEpicLauncherCommandLine,
+    FEpicOAuthConfig, FEpicOAuthTokenResponse, EPIC_OAUTH_AUTHORIZE_URL, EPIC_OAUTH_JWKS_URL,
+    EPIC_OAUTH_REVOKE_URL, EPIC_OAUTH_TOKEN_INFO_URL, EPIC_OAUTH_TOKEN_URL,
+};
+pub use epic_games_eos_sys as eos_sys;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FIoStoreTocEntry {

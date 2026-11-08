@@ -8,4 +8,6 @@ authors.workspace = true
 description = "Unreal Engine 6 NetCore, Iris Replication, Epic Online Services (EOS), Easy Anti-Cheat (EAC), Steamworks & Cloudflare R2 60GB CPK Pak Streaming"
 
 [dependencies]
+epic-games-auth = { path = "../epic-games-auth" }
+epic-games-eos-sys = { path = "../../ThirdParty/EOSSDK/epic-games-eos-sys" }
 serde = { workspace = true }

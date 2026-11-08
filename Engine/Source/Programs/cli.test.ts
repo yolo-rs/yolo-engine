@@ -47,7 +47,7 @@ describe("YOLO Engine 6.0 (UE6) — Architecture, UBT, UHT, Shaders & 35 MCP Ski
   });
 
   test("executes UnrealBuildTool (UBT 6.0) module graph and Shipping/Development plans", () => {
-    expect(UNREAL_BUILD_TOOL_MODULES.length).toBe(4);
+    expect(UNREAL_BUILD_TOOL_MODULES.length).toBe(6);
     const shippingPlan = executeUnrealBuildTool({
       target: "YoloEditor",
       platform: "Win64",

@@ -1,0 +1,12 @@
+[package]
+name = "epic-games-auth"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Safe Rust 2024 Epic Games OAuth2 (`api.epicgames.dev/epic/oauth/v2`), Epic Account Services (`EOS_Auth`), Game Services (`EOS_Connect`), Easy Anti-Cheat (`EAC`), and Keyless Vault for YOLO Engine 6.0 (UE6)"
+
+[dependencies]
+epic-games-eos-sys = { path = "../../ThirdParty/EOSSDK/epic-games-eos-sys" }
+serde = { workspace = true }
