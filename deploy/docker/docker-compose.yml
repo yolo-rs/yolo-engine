@@ -1,0 +1,33 @@
+services:
+  yolo-engine-gameserver:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: yolo-engine-gameserver
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - YOLO_ENV=production
+      - R2_BUCKET_URL=${R2_BUCKET_URL}
+      - WIREGUARD_IP=10.200.77.50
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/yolo-engine
+      - /dev/dri:/dev/dri
+
+  yolo-stream-sunshine:
+    image: lizardbyte/sunshine:latest
+    container_name: yolo-stream-sunshine
+    runtime: nvidia
+    environment:
+      - SUNSHINE_USER=aphrody
+      - SUNSHINE_PASS=yolo-sovereign-stream
+    network_mode: host
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - ./sunshine/config:/root/.config/sunshine
+      - /dev/input:/dev/input
+      - /dev/dri:/dev/dri
