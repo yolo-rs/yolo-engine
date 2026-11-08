@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://standards.yolo.io/schemas/hardware/cpu-isa.schema.json",
+  "title": "CPU Instruction Set Architecture (ISA) & Microarchitecture Schema",
+  "description": "Exhaustive JSON Schema covering CPU architectures (x86_64, aarch64, riscv64), microarchitecture baseline levels (x86-64-v1..v4, ARMv8/ARMv9), advanced extensions (APX, AVX10, AMX, Zen 4/5, SVE2, SME2, PAC/BTI, MTE), register files, and cache topologies.",
+  "type": "object",
+  "required": [
+    "architecture",
+    "vendor",
+    "family",
+    "modelName",
+    "microarchitectureLevel",
+    "features",
+    "registers",
+    "cacheTopology"
+  ],
+  "properties": {
+    "architecture": {
+      "type": "string",
+      "enum": ["x86_64", "aarch64", "riscv64", "arm"]
+    },
+    "vendor": {
+      "type": "string",
+      "enum": ["Intel", "AMD", "Apple", "Qualcomm", "Ampere", "AWS", "Google", "ARM", "Generic"]
+    },
+    "family": {
+      "type": "string",
+      "description": "CPU family code or core design name (e.g. Zen 5, Granite Rapids, Lion Cove, Oryon, Everest, Cortex-X4, Neoverse-V2)"
+    },
+    "modelName": {
+      "type": "string",
+      "description": "Full marketing model name (e.g. AMD EPYC 9655 Turin, Intel Xeon 6980P Granite Rapids, Apple M4 Max, Snapdragon X Elite X1E-84-100)"
+    },
+    "stepping": {
+      "type": "integer"
+    },
+    "microarchitectureLevel": {
+      "type": "string",
+      "enum": [
+        "x86-64-v1",
+        "x86-64-v2",
+        "x86-64-v3",
+        "x86-64-v4",
+        "armv8.0-a",
+        "armv8.2-a",
+        "armv8.4-a",
+        "armv8.6-a",
+        "armv9.0-a",
+        "armv9.2-a",
+        "armv9.4-a",
+        "armv9.5-a",
+        "riscv64gc",
+        "unknown"
+      ]
+    },
+    "features": {
+      "type": "object",
+      "required": ["flags", "vectorExtensions", "securityExtensions"],
+      "properties": {
+        "flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Standard CPU flags (e.g. mmx, sse, sse2, avx, avx2, avx512f, bmi1, bmi2, fma, lzcnt, movbe, popcnt, apx, avx10, amx_tile, amx_int8, amx_bf16, fred, lkgs, lam, sev_snp, sve, sve2, sme, sme2, pac, bti, mte)"
+        },
+        "vectorExtensions": {
+          "type": "object",
+          "required": ["maxVectorWidthBits"],
+          "properties": {
+            "maxVectorWidthBits": {
+              "type": "integer",
+              "enum": [64, 128, 256, 512, 1024, 2048]
+            },
+            "avx512Subsets": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Active AVX-512 subsets (e.g. F, CD, BW, DQ, VL, IFMA, VBMI, VBMI2, VNNI, BFLOAT16, FP16, VPOPCNTDQ)"
+            },
+            "avx10": {
+              "type": "object",
+              "properties": {
+                "version": { "type": "string", "enum": ["10.1", "10.2", "none"] },
+                "vectorLength": { "type": "integer", "enum": [256, 512] }
+              }
+            },
+            "amx": {
+              "type": "object",
+              "properties": {
+                "tileConfig": { "type": "boolean" },
+                "int8": { "type": "boolean" },
+                "bf16": { "type": "boolean" },
+                "fp16": { "type": "boolean" },
+                "complex": { "type": "boolean" }
+              }
+            },
+            "armSve": {
+              "type": "object",
+              "properties": {
+                "sveVersion": { "type": "string", "enum": ["none", "SVE", "SVE2", "SVE2.1"] },
+                "vectorLengthBits": { "type": "integer" }
+              }
+            },
+            "armSme": {
+              "type": "object",
+              "properties": {
+                "smeVersion": { "type": "string", "enum": ["none", "SME", "SME2", "SME2.1"] },
+                "streamingVectorLengthBits": { "type": "integer" }
+              }
+            }
+          }
+        },
+        "securityExtensions": {
+          "type": "object",
+          "properties": {
+            "pointerAuth": { "type": "boolean" },
+            "branchTargetIdentification": { "type": "boolean" },
+            "memoryTagging": { "type": "boolean" },
+            "shadowStack": { "type": "boolean" },
+            "sevSnp": { "type": "boolean" },
+            "intelTdx": { "type": "boolean" },
+            "intelSgx": { "type": "boolean" },
+            "keyLocker": { "type": "boolean" },
+            "fred": { "type": "boolean" },
+            "lam": { "type": "boolean" }
+          }
+        },
+        "apxExtensions": {
+          "type": "object",
+          "properties": {
+            "gprCount": { "type": "integer", "enum": [16, 32] },
+            "threeOperandCcmp": { "type": "boolean" },
+            "push2Pop2": { "type": "boolean" },
+            "jmpabs": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "registers": {
+      "type": "object",
+      "required": ["generalPurposeCount", "generalPurposeWidthBits", "vectorRegisterCount", "vectorRegisterWidthBits"],
+      "properties": {
+        "generalPurposeCount": { "type": "integer" },
+        "generalPurposeWidthBits": { "type": "integer", "enum": [32, 64] },
+        "vectorRegisterCount": { "type": "integer" },
+        "vectorRegisterWidthBits": { "type": "integer" },
+        "matrixTiles": {
+          "type": "object",
+          "properties": {
+            "tileCount": { "type": "integer" },
+            "maxBytesPerTile": { "type": "integer" }
+          }
+        },
+        "predicateRegisterCount": { "type": "integer" }
+      }
+    },
+    "cacheTopology": {
+      "type": "object",
+      "required": ["l1iCacheBytes", "l1dCacheBytes", "l2CacheBytes", "l3CacheBytes"],
+      "properties": {
+        "l1iCacheBytes": { "type": "integer" },
+        "l1dCacheBytes": { "type": "integer" },
+        "l2CacheBytes": { "type": "integer" },
+        "l3CacheBytes": { "type": "integer" },
+        "slcCacheBytes": { "type": "integer" },
+        "cacheLineBytes": { "type": "integer", "default": 64 },
+        "dynamicCaching": {
+          "type": "boolean",
+          "description": "Hardware dynamic memory allocation for caches/GPU shaders (e.g. Apple M3/M4)"
+        }
+      }
+    },
+    "virtualizationSupport": {
+      "type": "object",
+      "properties": {
+        "hardwareAssisted": { "type": "boolean" },
+        "hypervisorType": { "type": "string", "enum": ["Intel-VT-x", "AMD-V", "ARM-EL2", "None"] },
+        "nestedVirtualization": { "type": "boolean" },
+        "iommu": { "type": "string", "enum": ["Intel-VT-d", "AMD-Vi", "ARM-SMMUv3", "None"] },
+        "confidentialComputing": {
+          "type": "string",
+          "enum": ["SEV-SNP", "Intel-TDX", "ARM-CCA", "None"]
+        }
+      }
+    }
+  }
+}

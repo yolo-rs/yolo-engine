@@ -1,0 +1,965 @@
+{
+  "standard": "POSIX.1-2024",
+  "edition": "Issue 8",
+  "year": 2024,
+  "specUrl": "https://pubs.opengroup.org/onlinepubs/9799919799/",
+  "headers": [
+    "aio.h", "arpa/inet.h", "assert.h", "complex.h", "cpio.h", "ctype.h",
+    "dirent.h", "dlfcn.h", "errno.h", "fcntl.h", "fenv.h", "float.h",
+    "fmtmsg.h", "fnmatch.h", "ftw.h", "glob.h", "grp.h", "iconv.h",
+    "inttypes.h", "iso646.h", "langinfo.h", "libgen.h", "limits.h",
+    "locale.h", "math.h", "monetary.h", "mqueue.h", "ndbm.h", "net/if.h",
+    "netdb.h", "netinet/in.h", "netinet/tcp.h", "nl_types.h", "poll.h",
+    "pthread.h", "pwd.h", "regex.h", "sched.h", "search.h", "semaphore.h",
+    "setjmp.h", "signal.h", "spawn.h", "stdalign.h", "stdarg.h", "stdbool.h",
+    "stddef.h", "stdint.h", "stdio.h", "stdlib.h", "stdnoreturn.h", "string.h",
+    "strings.h", "sys/ipc.h", "sys/mman.h", "sys/msg.h", "sys/resource.h",
+    "sys/select.h", "sys/sem.h", "sys/shm.h", "sys/socket.h", "sys/stat.h",
+    "sys/statvfs.h", "sys/time.h", "sys/times.h", "sys/types.h", "sys/uio.h",
+    "sys/un.h", "sys/utsname.h", "sys/wait.h", "syslog.h", "tar.h",
+    "termios.h", "tgmath.h", "time.h", "uchar.h", "ulimit.h", "unistd.h",
+    "utime.h", "utmpx.h", "wchar.h", "wctype.h", "wordexp.h"
+  ],
+  "interfaces": [
+    { "name": "openat", "header": "fcntl.h", "section": "System Interfaces", "description": "Open file relative to directory file descriptor" },
+    { "name": "posix_spawn", "header": "spawn.h", "section": "System Interfaces", "description": "Spawn process with file actions and attributes" },
+    { "name": "close_range", "header": "unistd.h", "section": "System Interfaces", "description": "Atomically close file descriptor range" },
+    { "name": "pipe2", "header": "unistd.h", "section": "System Interfaces", "description": "Create pipe with flags" },
+    { "name": "dup3", "header": "unistd.h", "section": "System Interfaces", "description": "Duplicate file descriptor with flags" },
+    { "name": "accept4", "header": "sys/socket.h", "section": "System Interfaces", "description": "Accept network socket with flags" },
+    { "name": "ppoll", "header": "poll.h", "section": "System Interfaces", "description": "Poll with nanosecond timeout and signal mask" },
+    { "name": "pselect", "header": "sys/select.h", "section": "System Interfaces", "description": "Select with nanosecond timeout and signal mask" },
+    { "name": "faccessat", "header": "unistd.h", "section": "System Interfaces", "description": "Check file accessibility relative to directory" },
+    { "name": "fstatat", "header": "sys/stat.h", "section": "System Interfaces", "description": "Get file status relative to directory" },
+    { "name": "mmap", "header": "sys/mman.h", "section": "System Interfaces", "description": "Map pages of memory" },
+    { "name": "sigaction", "header": "signal.h", "section": "System Interfaces", "description": "Examine and change signal action" }
+  ],
+  "utilities": [
+    { "name": "ls", "category": "File Utilities", "description": "List directory contents" },
+    { "name": "grep", "category": "Text Utilities", "description": "Search text patterns using POSIX regular expressions" },
+    { "name": "cat", "category": "File Utilities", "description": "Concatenate and print files" },
+    { "name": "cp", "category": "File Utilities", "description": "Copy files and directories" },
+    { "name": "mv", "category": "File Utilities", "description": "Move and rename files" },
+    { "name": "rm", "category": "File Utilities", "description": "Remove files or directories" },
+    { "name": "chmod", "category": "File Utilities", "description": "Change file mode bits" },
+    { "name": "chown", "category": "File Utilities", "description": "Change file ownership" },
+    { "name": "mkdir", "category": "File Utilities", "description": "Make directories" },
+    { "name": "kill", "category": "Process Utilities", "description": "Send signals to processes" },
+    { "name": "ps", "category": "Process Utilities", "description": "Report process status" },
+    { "name": "find", "category": "File Utilities", "description": "Find files in directory hierarchy" }
+  ],
+  "limits": {
+    "_POSIX_ARG_MAX": 4096,
+    "_POSIX_CHILD_MAX": 25,
+    "_POSIX_HOST_NAME_MAX": 255,
+    "_POSIX_LINK_MAX": 8,
+    "_POSIX_LOGIN_NAME_MAX": 9,
+    "_POSIX_MAX_CANON": 255,
+    "_POSIX_MAX_INPUT": 255,
+    "_POSIX_NAME_MAX": 14,
+    "_POSIX_NGROUPS_MAX": 8,
+    "_POSIX_OPEN_MAX": 20,
+    "_POSIX_PATH_MAX": 256,
+    "_POSIX_PIPE_BUF": 512,
+    "_POSIX_RE_DUP_MAX": 255,
+    "_POSIX_SSIZE_MAX": 32767,
+    "_POSIX_SYMLINK_MAX": 255,
+    "_POSIX_SYMLOOP_MAX": 8,
+    "_POSIX_TTY_NAME_MAX": 9
+  },
+  "syscalls": [
+    {
+      "name": "openat",
+      "header": "<fcntl.h>",
+      "category": "filesystem",
+      "returnType": "int",
+      "signature": "int openat(int dirfd, const char *pathname, int flags, ... /* mode_t mode */);",
+      "parameters": [
+        { "name": "dirfd", "type": "int", "description": "Directory file descriptor or AT_FDCWD" },
+        { "name": "pathname", "type": "const char *", "description": "Relative or absolute file path" },
+        { "name": "flags", "type": "int", "description": "Access modes and status flags (O_RDONLY, O_WRONLY, O_RDWR, O_CLOEXEC, etc.)" },
+        { "name": "mode", "type": "mode_t", "description": "File permission bits when creating (optional, used with O_CREAT / O_TMPFILE)" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EACCES", "EBADF", "EDQUOT", "EEXIST", "EFAULT", "EINTR", "EINVAL", "EISDIR", "ELOOP", "EMFILE", "ENAMETOOLONG", "ENFILE", "ENOENT", "ENOMEM", "ENOSPC", "ENOTDIR", "ENXIO", "EOVERFLOW", "EPERM", "EROFS", "ETXTBSY", "EWOULDBLOCK"],
+      "description": "Open a file relative to a directory file descriptor dirfd. Provides race-free VFS traversal.",
+      "rustMapping": {
+        "libc": "libc::openat",
+        "nix": "nix::fcntl::openat",
+        "rustix": "rustix::fs::openat"
+      }
+    },
+    {
+      "name": "close_range",
+      "header": "<unistd.h>",
+      "category": "io",
+      "returnType": "int",
+      "signature": "int close_range(unsigned int first, unsigned int last, int flags);",
+      "parameters": [
+        { "name": "first", "type": "unsigned int", "description": "First file descriptor in range to close" },
+        { "name": "last", "type": "unsigned int", "description": "Last file descriptor in range to close (inclusive)" },
+        { "name": "flags", "type": "int", "description": "Flags modifying behavior (CLOSE_RANGE_UNSHARE, CLOSE_RANGE_CLOEXEC)" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EINVAL"],
+      "description": "Efficiently closes all open file descriptors within the range [first, last] in a single atomic call.",
+      "rustMapping": {
+        "libc": "libc::close_range",
+        "nix": "nix::unistd::close_range",
+        "rustix": "rustix::io::close_range"
+      }
+    },
+    {
+      "name": "pipe2",
+      "header": "<unistd.h>",
+      "category": "ipc",
+      "returnType": "int",
+      "signature": "int pipe2(int pipefd[2], int flags);",
+      "parameters": [
+        { "name": "pipefd", "type": "int[2]", "description": "Array returning read (0) and write (1) ends" },
+        { "name": "flags", "type": "int", "description": "Bitwise OR of O_CLOEXEC, O_NONBLOCK, O_DIRECT" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EFAULT", "EINVAL", "EMFILE", "ENFILE"],
+      "description": "Creates a unidirectional data channel with atomic flag assignment (O_CLOEXEC, O_NONBLOCK).",
+      "rustMapping": {
+        "libc": "libc::pipe2",
+        "nix": "nix::unistd::pipe2",
+        "rustix": "rustix::pipe::pipe2"
+      }
+    },
+    {
+      "name": "dup3",
+      "header": "<unistd.h>",
+      "category": "io",
+      "returnType": "int",
+      "signature": "int dup3(int oldfd, int newfd, int flags);",
+      "parameters": [
+        { "name": "oldfd", "type": "int", "description": "Existing file descriptor to duplicate" },
+        { "name": "newfd", "type": "int", "description": "Target file descriptor" },
+        { "name": "flags", "type": "int", "description": "Flags, typically O_CLOEXEC" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EBADF", "EBUSY", "EINVAL", "EMFILE"],
+      "description": "Duplicate a file descriptor to a specified index with atomic flag setting (O_CLOEXEC). Fails if oldfd == newfd.",
+      "rustMapping": {
+        "libc": "libc::dup3",
+        "nix": "nix::unistd::dup3",
+        "rustix": "rustix::io::dup3"
+      }
+    },
+    {
+      "name": "preadv",
+      "header": "<sys/uio.h>",
+      "category": "io",
+      "returnType": "ssize_t",
+      "signature": "ssize_t preadv(int fd, const struct iovec *iov, int iovcnt, off_t offset);",
+      "parameters": [
+        { "name": "fd", "type": "int", "description": "File descriptor" },
+        { "name": "iov", "type": "const struct iovec *", "description": "Scatter-gather array buffers" },
+        { "name": "iovcnt", "type": "int", "description": "Number of iovec structures" },
+        { "name": "offset", "type": "off_t", "description": "File offset to read from without updating file pointer" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EBADF", "EFAULT", "EINVAL", "EIO", "EISDIR", "EOPNOTSUPP", "EOVERFLOW", "ESPIPE"],
+      "description": "Scatter-gather positional read from a file descriptor without changing file offset pointer.",
+      "rustMapping": {
+        "libc": "libc::preadv",
+        "nix": "nix::sys::uio::preadv",
+        "rustix": "rustix::io::preadv"
+      }
+    },
+    {
+      "name": "pwritev",
+      "header": "<sys/uio.h>",
+      "category": "io",
+      "returnType": "ssize_t",
+      "signature": "ssize_t pwritev(int fd, const struct iovec *iov, int iovcnt, off_t offset);",
+      "parameters": [
+        { "name": "fd", "type": "int", "description": "File descriptor" },
+        { "name": "iov", "type": "const struct iovec *", "description": "Gather array buffers" },
+        { "name": "iovcnt", "type": "int", "description": "Number of iovec structures" },
+        { "name": "offset", "type": "off_t", "description": "File offset to write to without updating file pointer" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EBADF", "EFAULT", "EFBIG", "EINVAL", "EIO", "ENOSPC", "EOPNOTSUPP", "EOVERFLOW", "EPIPE", "ESPIPE"],
+      "description": "Gather positional write into a file descriptor without changing file offset pointer.",
+      "rustMapping": {
+        "libc": "libc::pwritev",
+        "nix": "nix::sys::uio::pwritev",
+        "rustix": "rustix::io::pwritev"
+      }
+    },
+    {
+      "name": "accept4",
+      "header": "<sys/socket.h>",
+      "category": "network",
+      "returnType": "int",
+      "signature": "int accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags);",
+      "parameters": [
+        { "name": "sockfd", "type": "int", "description": "Listening socket file descriptor" },
+        { "name": "addr", "type": "struct sockaddr *", "description": "Pointer to peer address buffer" },
+        { "name": "addrlen", "type": "socklen_t *", "description": "Pointer to peer address size" },
+        { "name": "flags", "type": "int", "description": "SOCK_NONBLOCK and/or SOCK_CLOEXEC" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EAGAIN", "EBADF", "ECONNABORTED", "EFAULT", "EINTR", "EINVAL", "EMFILE", "ENFILE", "ENOBUFS", "ENOMEM", "ENOTSOCK", "EOPNOTSUPP", "EPROTO", "EPERM"],
+      "description": "Accept a connection on a listening socket, atomically setting SOCK_NONBLOCK and SOCK_CLOEXEC on the new socket.",
+      "rustMapping": {
+        "libc": "libc::accept4",
+        "nix": "nix::sys::socket::accept4",
+        "rustix": "rustix::net::accept4"
+      }
+    },
+    {
+      "name": "ppoll",
+      "header": "<poll.h>",
+      "category": "io",
+      "returnType": "int",
+      "signature": "int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);",
+      "parameters": [
+        { "name": "fds", "type": "struct pollfd *", "description": "Array of pollfd structures to poll" },
+        { "name": "nfds", "type": "nfds_t", "description": "Number of elements in fds" },
+        { "name": "tmo_p", "type": "const struct timespec *", "description": "Nanosecond-precision timeout pointer or NULL" },
+        { "name": "sigmask", "type": "const sigset_t *", "description": "Signal mask applied atomically during wait" }
+      ],
+      "posixIssue": "Issue 8 (POSIX.1-2024)",
+      "introducedIn2024": true,
+      "errnos": ["EFAULT", "EINTR", "EINVAL", "ENOMEM"],
+      "description": "Wait for events on file descriptors with nanosecond resolution and atomic signal mask replacement.",
+      "rustMapping": {
+        "libc": "libc::ppoll",
+        "nix": "nix::poll::ppoll",
+        "rustix": "rustix::event::ppoll"
+      }
+    },
+    {
+      "name": "pselect",
+      "header": "<sys/select.h>",
+      "category": "io",
+      "returnType": "int",
+      "signature": "int pselect(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, const struct timespec *timeout, const sigset_t *sigmask);",
+      "parameters": [
+        { "name": "nfds", "type": "int", "description": "Highest file descriptor number plus 1" },
+        { "name": "readfds", "type": "fd_set *", "description": "Read file descriptor set" },
+        { "name": "writefds", "type": "fd_set *", "description": "Write file descriptor set" },
+        { "name": "exceptfds", "type": "fd_set *", "description": "Exceptional condition file descriptor set" },
+        { "name": "timeout", "type": "const struct timespec *", "description": "Nanosecond timeout" },
+        { "name": "sigmask", "type": "const sigset_t *", "description": "Signal mask" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EBADF", "EINTR", "EINVAL", "ENOMEM"],
+      "description": "Synchronous I/O multiplexing with nanosecond resolution and atomic signal mask manipulation.",
+      "rustMapping": {
+        "libc": "libc::pselect",
+        "nix": "nix::sys::select::pselect",
+        "rustix": "rustix::event::pselect"
+      }
+    },
+    {
+      "name": "posix_spawn",
+      "header": "<spawn.h>",
+      "category": "process",
+      "returnType": "int",
+      "signature": "int posix_spawn(pid_t *pid, const char *path, const posix_spawn_file_actions_t *file_actions, const posix_spawnattr_t *attrp, char *const argv[], char *const envp[]);",
+      "parameters": [
+        { "name": "pid", "type": "pid_t *", "description": "Output process ID" },
+        { "name": "path", "type": "const char *", "description": "Path to executable image" },
+        { "name": "file_actions", "type": "const posix_spawn_file_actions_t *", "description": "File descriptor actions (close, dup2, open)" },
+        { "name": "attrp", "type": "const posix_spawnattr_t *", "description": "Spawn attributes (signals, flags, pgid, sched)" },
+        { "name": "argv", "type": "char *const []", "description": "Argument vector" },
+        { "name": "envp", "type": "char *const []", "description": "Environment vector" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["E2BIG", "EACCES", "EBADF", "EINVAL", "ELOOP", "ENAMETOOLONG", "ENOENT", "ENOEXEC", "ENOMEM", "ENOTDIR", "ETXTBSY"],
+      "description": "Spawns a new child process without fork() overhead, supporting atomic file actions and signal setup. Enhanced in 2024 with POSIX_SPAWN_SETSID and POSIX_SPAWN_CLOEXEC_DEFAULT.",
+      "rustMapping": {
+        "libc": "libc::posix_spawn",
+        "nix": "nix::spawn::posix_spawn",
+        "rustix": "rustix::process::posix_spawn"
+      }
+    },
+    {
+      "name": "faccessat",
+      "header": "<unistd.h>",
+      "category": "filesystem",
+      "returnType": "int",
+      "signature": "int faccessat(int dirfd, const char *pathname, int mode, int flags);",
+      "parameters": [
+        { "name": "dirfd", "type": "int", "description": "Directory file descriptor or AT_FDCWD" },
+        { "name": "pathname", "type": "const char *", "description": "Relative path to target file" },
+        { "name": "mode", "type": "int", "description": "R_OK, W_OK, X_OK, or F_OK" },
+        { "name": "flags", "type": "int", "description": "AT_EACCESS, AT_SYMLINK_NOFOLLOW" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EACCES", "EBADF", "EINVAL", "ELOOP", "ENAMETOOLONG", "ENOENT", "ENOTDIR", "EROFS", "ETXTBSY"],
+      "description": "Check user file access permissions relative to directory descriptor with effective UID/GID options.",
+      "rustMapping": {
+        "libc": "libc::faccessat",
+        "nix": "nix::unistd::faccessat",
+        "rustix": "rustix::fs::accessat"
+      }
+    },
+    {
+      "name": "fstatat",
+      "header": "<sys/stat.h>",
+      "category": "filesystem",
+      "returnType": "int",
+      "signature": "int fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags);",
+      "parameters": [
+        { "name": "dirfd", "type": "int", "description": "Directory file descriptor or AT_FDCWD" },
+        { "name": "pathname", "type": "const char *", "description": "Relative path to file" },
+        { "name": "statbuf", "type": "struct stat *", "description": "Buffer to store file status" },
+        { "name": "flags", "type": "int", "description": "AT_SYMLINK_NOFOLLOW, AT_NO_AUTOMOUNT, AT_EMPTY_PATH" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EACCES", "EBADF", "EFAULT", "EINVAL", "ELOOP", "ENAMETOOLONG", "ENOENT", "ENOMEM", "ENOTDIR", "EOVERFLOW"],
+      "description": "Retrieve file status relative to directory file descriptor.",
+      "rustMapping": {
+        "libc": "libc::fstatat",
+        "nix": "nix::sys::stat::fstatat",
+        "rustix": "rustix::fs::statat"
+      }
+    },
+    {
+      "name": "mmap",
+      "header": "<sys/mman.h>",
+      "category": "memory",
+      "returnType": "void *",
+      "signature": "void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);",
+      "parameters": [
+        { "name": "addr", "type": "void *", "description": "Hint address or NULL" },
+        { "name": "length", "type": "size_t", "description": "Number of bytes to map" },
+        { "name": "prot", "type": "int", "description": "PROT_READ, PROT_WRITE, PROT_EXEC, PROT_NONE" },
+        { "name": "flags", "type": "int", "description": "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED" },
+        { "name": "fd", "type": "int", "description": "File descriptor or -1 for anonymous" },
+        { "name": "offset", "type": "off_t", "description": "Page-aligned offset within file" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EACCES", "EAGAIN", "EBADF", "EINVAL", "ENFILE", "ENODEV", "ENOMEM", "EOVERFLOW", "EPERM", "ETXTBSY"],
+      "description": "Map files or anonymous virtual memory into the process address space.",
+      "rustMapping": {
+        "libc": "libc::mmap",
+        "nix": "nix::sys::mman::mmap",
+        "rustix": "rustix::mm::mmap"
+      }
+    },
+    {
+      "name": "munmap",
+      "header": "<sys/mman.h>",
+      "category": "memory",
+      "returnType": "int",
+      "signature": "int munmap(void *addr, size_t length);",
+      "parameters": [
+        { "name": "addr", "type": "void *", "description": "Page-aligned starting virtual address" },
+        { "name": "length", "type": "size_t", "description": "Length of virtual address range in bytes" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EINVAL"],
+      "description": "Unmap mapped memory pages from process virtual address space.",
+      "rustMapping": {
+        "libc": "libc::munmap",
+        "nix": "nix::sys::mman::munmap",
+        "rustix": "rustix::mm::munmap"
+      }
+    },
+    {
+      "name": "sigaction",
+      "header": "<signal.h>",
+      "category": "signals",
+      "returnType": "int",
+      "signature": "int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);",
+      "parameters": [
+        { "name": "signum", "type": "int", "description": "Signal number to inspect or change" },
+        { "name": "act", "type": "const struct sigaction *", "description": "New action configuration" },
+        { "name": "oldact", "type": "struct sigaction *", "description": "Buffer receiving previous action" }
+      ],
+      "posixIssue": "Issue 7 / Issue 8",
+      "introducedIn2024": false,
+      "errnos": ["EFAULT", "EINVAL"],
+      "description": "Examine and change signal disposition with support for SA_SIGINFO 3-argument handlers.",
+      "rustMapping": {
+        "libc": "libc::sigaction",
+        "nix": "nix::sys::signal::sigaction",
+        "rustix": "rustix::process::sigaction"
+      }
+    }
+  ],
+  "errnoCodes": [
+    { "code": "EPERM", "numericValueTypical": 1, "description": "Operation not permitted", "posixRequired": true },
+    { "code": "ENOENT", "numericValueTypical": 2, "description": "No such file or directory", "posixRequired": true },
+    { "code": "ESRCH", "numericValueTypical": 3, "description": "No such process", "posixRequired": true },
+    { "code": "EINTR", "numericValueTypical": 4, "description": "Interrupted system call", "posixRequired": true },
+    { "code": "EIO", "numericValueTypical": 5, "description": "Input/output error", "posixRequired": true },
+    { "code": "ENXIO", "numericValueTypical": 6, "description": "No such device or address", "posixRequired": true },
+    { "code": "E2BIG", "numericValueTypical": 7, "description": "Argument list too long", "posixRequired": true },
+    { "code": "ENOEXEC", "numericValueTypical": 8, "description": "Exec format error", "posixRequired": true },
+    { "code": "EBADF", "numericValueTypical": 9, "description": "Bad file descriptor", "posixRequired": true },
+    { "code": "ECHILD", "numericValueTypical": 10, "description": "No child processes", "posixRequired": true },
+    { "code": "EAGAIN", "numericValueTypical": 11, "description": "Resource temporarily unavailable", "posixRequired": true },
+    { "code": "EWOULDBLOCK", "numericValueTypical": 11, "description": "Operation would block (same value as EAGAIN on most platforms)", "posixRequired": true },
+    { "code": "ENOMEM", "numericValueTypical": 12, "description": "Cannot allocate memory", "posixRequired": true },
+    { "code": "EACCES", "numericValueTypical": 13, "description": "Permission denied", "posixRequired": true },
+    { "code": "EFAULT", "numericValueTypical": 14, "description": "Bad address in memory space", "posixRequired": true },
+    { "code": "ENOTBLK", "numericValueTypical": 15, "description": "Block device required", "posixRequired": true },
+    { "code": "EBUSY", "numericValueTypical": 16, "description": "Device or resource busy", "posixRequired": true },
+    { "code": "EEXIST", "numericValueTypical": 17, "description": "File exists", "posixRequired": true },
+    { "code": "EXDEV", "numericValueTypical": 18, "description": "Invalid cross-device link", "posixRequired": true },
+    { "code": "ENODEV", "numericValueTypical": 19, "description": "No such device", "posixRequired": true },
+    { "code": "ENOTDIR", "numericValueTypical": 20, "description": "Not a directory", "posixRequired": true },
+    { "code": "EISDIR", "numericValueTypical": 21, "description": "Is a directory", "posixRequired": true },
+    { "code": "EINVAL", "numericValueTypical": 22, "description": "Invalid argument", "posixRequired": true },
+    { "code": "ENFILE", "numericValueTypical": 23, "description": "Too many open files in system", "posixRequired": true },
+    { "code": "EMFILE", "numericValueTypical": 24, "description": "Too many open files", "posixRequired": true },
+    { "code": "ENOTTY", "numericValueTypical": 25, "description": "Inappropriate ioctl for device", "posixRequired": true },
+    { "code": "ETXTBSY", "numericValueTypical": 26, "description": "Text file busy", "posixRequired": true },
+    { "code": "EFBIG", "numericValueTypical": 27, "description": "File too large", "posixRequired": true },
+    { "code": "ENOSPC", "numericValueTypical": 28, "description": "No space left on device", "posixRequired": true },
+    { "code": "ESPIPE", "numericValueTypical": 29, "description": "Illegal seek", "posixRequired": true },
+    { "code": "EROFS", "numericValueTypical": 30, "description": "Read-only file system", "posixRequired": true },
+    { "code": "EMLINK", "numericValueTypical": 31, "description": "Too many links", "posixRequired": true },
+    { "code": "EPIPE", "numericValueTypical": 32, "description": "Broken pipe", "posixRequired": true },
+    { "code": "EDOM", "numericValueTypical": 33, "description": "Numerical argument out of domain", "posixRequired": true },
+    { "code": "ERANGE", "numericValueTypical": 34, "description": "Numerical result out of range", "posixRequired": true },
+    { "code": "EDEADLK", "numericValueTypical": 35, "description": "Resource deadlock avoided", "posixRequired": true },
+    { "code": "ENAMETOOLONG", "numericValueTypical": 36, "description": "File name too long", "posixRequired": true },
+    { "code": "ENOLCK", "numericValueTypical": 37, "description": "No locks available", "posixRequired": true },
+    { "code": "ENOSYS", "numericValueTypical": 38, "description": "Function not implemented", "posixRequired": true },
+    { "code": "ENOTEMPTY", "numericValueTypical": 39, "description": "Directory not empty", "posixRequired": true },
+    { "code": "ELOOP", "numericValueTypical": 40, "description": "Too many levels of symbolic links", "posixRequired": true },
+    { "code": "ENOMSG", "numericValueTypical": 42, "description": "No message of desired type", "posixRequired": true },
+    { "code": "EIDRM", "numericValueTypical": 43, "description": "Identifier removed", "posixRequired": true },
+    { "code": "EOVERFLOW", "numericValueTypical": 75, "description": "Value too large for defined data type", "posixRequired": true },
+    { "code": "EILSEQ", "numericValueTypical": 84, "description": "Invalid or incomplete multibyte or wide character", "posixRequired": true },
+    { "code": "ENOTSOCK", "numericValueTypical": 88, "description": "Socket operation on non-socket", "posixRequired": true },
+    { "code": "EDESTADDRREQ", "numericValueTypical": 89, "description": "Destination address required", "posixRequired": true },
+    { "code": "EMSGSIZE", "numericValueTypical": 90, "description": "Message too long", "posixRequired": true },
+    { "code": "EPROTOTYPE", "numericValueTypical": 91, "description": "Protocol wrong type for socket", "posixRequired": true },
+    { "code": "ENOPROTOOPT", "numericValueTypical": 92, "description": "Protocol not available", "posixRequired": true },
+    { "code": "EPROTONOSUPPORT", "numericValueTypical": 93, "description": "Protocol not supported", "posixRequired": true },
+    { "code": "EOPNOTSUPP", "numericValueTypical": 95, "description": "Operation not supported on socket", "posixRequired": true },
+    { "code": "EAFNOSUPPORT", "numericValueTypical": 97, "description": "Address family not supported by protocol", "posixRequired": true },
+    { "code": "EADDRINUSE", "numericValueTypical": 98, "description": "Address already in use", "posixRequired": true },
+    { "code": "EADDRNOTAVAIL", "numericValueTypical": 99, "description": "Cannot assign requested address", "posixRequired": true },
+    { "code": "ENETDOWN", "numericValueTypical": 100, "description": "Network is down", "posixRequired": true },
+    { "code": "ENETUNREACH", "numericValueTypical": 101, "description": "Network is unreachable", "posixRequired": true },
+    { "code": "ENETRESET", "numericValueTypical": 102, "description": "Network dropped connection on reset", "posixRequired": true },
+    { "code": "ECONNABORTED", "numericValueTypical": 103, "description": "Software caused connection abort", "posixRequired": true },
+    { "code": "ECONNRESET", "numericValueTypical": 104, "description": "Connection reset by peer", "posixRequired": true },
+    { "code": "ENOBUFS", "numericValueTypical": 105, "description": "No buffer space available", "posixRequired": true },
+    { "code": "EISCONN", "numericValueTypical": 106, "description": "Transport endpoint is already connected", "posixRequired": true },
+    { "code": "ENOTCONN", "numericValueTypical": 107, "description": "Transport endpoint is not connected", "posixRequired": true },
+    { "code": "ESHUTDOWN", "numericValueTypical": 108, "description": "Cannot send after transport endpoint shutdown", "posixRequired": true },
+    { "code": "ETIMEDOUT", "numericValueTypical": 110, "description": "Connection timed out", "posixRequired": true },
+    { "code": "ECONNREFUSED", "numericValueTypical": 111, "description": "Connection refused", "posixRequired": true },
+    { "code": "EHOSTDOWN", "numericValueTypical": 112, "description": "Host is down", "posixRequired": true },
+    { "code": "EHOSTUNREACH", "numericValueTypical": 113, "description": "No route to host", "posixRequired": true },
+    { "code": "EALREADY", "numericValueTypical": 114, "description": "Operation already in progress", "posixRequired": true },
+    { "code": "EINPROGRESS", "numericValueTypical": 115, "description": "Operation now in progress", "posixRequired": true },
+    { "code": "ECANCELED", "numericValueTypical": 125, "description": "Operation canceled", "posixRequired": true },
+    { "code": "EOWNERDEAD", "numericValueTypical": 130, "description": "Previous owner of robust mutex died", "posixRequired": true },
+    { "code": "ENOTRECOVERABLE", "numericValueTypical": 131, "description": "State not recoverable after robust mutex owner death", "posixRequired": true }
+  ],
+  "signals": [
+    { "name": "SIGHUP", "numberTypical": 1, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Hangup detected on controlling terminal or death of controlling process" },
+    { "name": "SIGINT", "numberTypical": 2, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Interactive attention signal generated by terminal interrupt key (Ctrl+C)" },
+    { "name": "SIGQUIT", "numberTypical": 3, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Terminal quit signal generating memory core dump (Ctrl+\\)" },
+    { "name": "SIGILL", "numberTypical": 4, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Illegal instruction executed by CPU" },
+    { "name": "SIGTRAP", "numberTypical": 5, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Trace/breakpoint trap" },
+    { "name": "SIGABRT", "numberTypical": 6, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Process abort signal initiated by abort()" },
+    { "name": "SIGBUS", "numberTypical": 7, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Bus error (bad memory access / unaligned reference)" },
+    { "name": "SIGFPE", "numberTypical": 8, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Erroneous arithmetic operation (e.g. division by zero, float overflow)" },
+    { "name": "SIGKILL", "numberTypical": 9, "defaultAction": "terminate", "catchable": false, "posixRequired": true, "description": "Uncatchable and unignorable immediate termination signal" },
+    { "name": "SIGUSR1", "numberTypical": 10, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "User-defined signal 1" },
+    { "name": "SIGSEGV", "numberTypical": 11, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Invalid virtual memory reference (segmentation fault)" },
+    { "name": "SIGUSR2", "numberTypical": 12, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "User-defined signal 2" },
+    { "name": "SIGPIPE", "numberTypical": 13, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Write on a pipe or socket with no readers" },
+    { "name": "SIGALRM", "numberTypical": 14, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Real-time timer expiration signal from alarm()" },
+    { "name": "SIGTERM", "numberTypical": 15, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Standard termination signal requesting polite process shutdown" },
+    { "name": "SIGCHLD", "numberTypical": 17, "defaultAction": "ignore", "catchable": true, "posixRequired": true, "description": "Child process status has changed (stopped, continued, or exited)" },
+    { "name": "SIGCONT", "numberTypical": 18, "defaultAction": "continue", "catchable": true, "posixRequired": true, "description": "Continue executing if stopped" },
+    { "name": "SIGSTOP", "numberTypical": 19, "defaultAction": "stop", "catchable": false, "posixRequired": true, "description": "Uncatchable and unignorable process execution stop" },
+    { "name": "SIGTSTP", "numberTypical": 20, "defaultAction": "stop", "catchable": true, "posixRequired": true, "description": "Terminal stop key typed by user (Ctrl+Z)" },
+    { "name": "SIGTTIN", "numberTypical": 21, "defaultAction": "stop", "catchable": true, "posixRequired": true, "description": "Background process attempting terminal read" },
+    { "name": "SIGTTOU", "numberTypical": 22, "defaultAction": "stop", "catchable": true, "posixRequired": true, "description": "Background process attempting terminal write under TOSTOP" },
+    { "name": "SIGURG", "numberTypical": 23, "defaultAction": "ignore", "catchable": true, "posixRequired": true, "description": "High priority or urgent data present on socket (OOB data)" },
+    { "name": "SIGXCPU", "numberTypical": 24, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "CPU time limit exceeded (setrlimit RLIMIT_CPU)" },
+    { "name": "SIGXFSZ", "numberTypical": 25, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "File size limit exceeded (setrlimit RLIMIT_FSIZE)" },
+    { "name": "SIGVTALRM", "numberTypical": 26, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Virtual timer expired (user CPU time)" },
+    { "name": "SIGPROF", "numberTypical": 27, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Profiling timer expired (system + user CPU time)" },
+    { "name": "SIGWINCH", "numberTypical": 28, "defaultAction": "ignore", "catchable": true, "posixRequired": true, "description": "Terminal window size change signal" },
+    { "name": "SIGPOLL", "numberTypical": 29, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Pollable event occurred (synonym for SIGIO)" },
+    { "name": "SIGSYS", "numberTypical": 31, "defaultAction": "core_dump", "catchable": true, "posixRequired": true, "description": "Bad system call executed (e.g. seccomp BPF filter violation)" },
+    { "name": "SIGRTMIN", "numberTypical": 34, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "First real-time queueable signal" },
+    { "name": "SIGRTMAX", "numberTypical": 64, "defaultAction": "terminate", "catchable": true, "posixRequired": true, "description": "Last real-time queueable signal" }
+  ],
+  "sigactionFlags": [
+    { "name": "SA_NOCLDSTOP", "bitmaskHexTypical": "0x00000001", "description": "Do not generate SIGCHLD when child processes stop (SIGSTOP/SIGTSTP) or continue" },
+    { "name": "SA_NOCLDWAIT", "bitmaskHexTypical": "0x00000002", "description": "Do not transform child processes into zombies upon exit; automatically reap" },
+    { "name": "SA_SIGINFO", "bitmaskHexTypical": "0x00000004", "description": "Invoke 3-argument handler sa_sigaction(int, siginfo_t *, void *) instead of sa_handler" },
+    { "name": "SA_ONSTACK", "bitmaskHexTypical": "0x08000000", "description": "Call signal handler on alternate signal stack installed via sigaltstack()" },
+    { "name": "SA_RESTART", "bitmaskHexTypical": "0x10000000", "description": "Automatically restart interruptible system calls across signal delivery" },
+    { "name": "SA_NODEFER", "bitmaskHexTypical": "0x40000000", "description": "Do not prevent the signal from being received from within its own handler" },
+    { "name": "SA_RESETHAND", "bitmaskHexTypical": "0x80000000", "description": "Restore signal disposition to SIG_DFL upon entry to signal handler" }
+  ],
+  "pthreads": {
+    "apis": [
+      { "name": "pthread_create", "header": "<pthread.h>", "signature": "int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine)(void *), void *arg);", "category": "lifecycle", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Create a new thread of execution within the calling process." },
+      { "name": "pthread_join", "header": "<pthread.h>", "signature": "int pthread_join(pthread_t thread, void **retval);", "category": "lifecycle", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Wait for target thread termination and retrieve return value." },
+      { "name": "pthread_detach", "header": "<pthread.h>", "signature": "int pthread_detach(pthread_t thread);", "category": "lifecycle", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Mark target thread as detached, automatically reclaiming resources on exit." },
+      { "name": "pthread_exit", "header": "<pthread.h>", "signature": "void pthread_exit(void *retval);", "category": "lifecycle", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Terminate the calling thread and return status pointer to any joiner." },
+      { "name": "pthread_cancel", "header": "<pthread.h>", "signature": "int pthread_cancel(pthread_t thread);", "category": "cancellation", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Request cancellation of target thread." },
+      { "name": "pthread_mutex_init", "header": "<pthread.h>", "signature": "int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Initialize a mutual exclusion lock with specified attributes." },
+      { "name": "pthread_mutex_lock", "header": "<pthread.h>", "signature": "int pthread_mutex_lock(pthread_mutex_t *mutex);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Acquire ownership of mutex, blocking if already held." },
+      { "name": "pthread_mutex_trylock", "header": "<pthread.h>", "signature": "int pthread_mutex_trylock(pthread_mutex_t *mutex);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Attempt to acquire mutex without blocking, returning EBUSY if locked." },
+      { "name": "pthread_mutex_unlock", "header": "<pthread.h>", "signature": "int pthread_mutex_unlock(pthread_mutex_t *mutex);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Release ownership of mutex lock." },
+      { "name": "pthread_mutex_destroy", "header": "<pthread.h>", "signature": "int pthread_mutex_destroy(pthread_mutex_t *mutex);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Destroy an initialized and unlocked mutex object." },
+      { "name": "pthread_mutex_consistent", "header": "<pthread.h>", "signature": "int pthread_mutex_consistent(pthread_mutex_t *mutex);", "category": "mutex", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Marks a robust mutex as consistent after the previous owner died (EOWNERDEAD)." },
+      { "name": "pthread_cond_init", "header": "<pthread.h>", "signature": "int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);", "category": "condvar", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Initialize a condition variable object." },
+      { "name": "pthread_cond_wait", "header": "<pthread.h>", "signature": "int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);", "category": "condvar", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Atomically unlock mutex and block until condition is signaled." },
+      { "name": "pthread_cond_timedwait", "header": "<pthread.h>", "signature": "int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);", "category": "condvar", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Block on condition variable with absolute deadline (supports CLOCK_MONOTONIC via pthread_condattr_setclock)." },
+      { "name": "pthread_cond_signal", "header": "<pthread.h>", "signature": "int pthread_cond_signal(pthread_cond_t *cond);", "category": "condvar", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Unblock at least one thread waiting on condition variable." },
+      { "name": "pthread_cond_broadcast", "header": "<pthread.h>", "signature": "int pthread_cond_broadcast(pthread_cond_t *cond);", "category": "condvar", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Unblock all threads waiting on condition variable." },
+      { "name": "pthread_rwlock_init", "header": "<pthread.h>", "signature": "int pthread_rwlock_init(pthread_rwlock_t *rwlock, const pthread_rwlockattr_t *attr);", "category": "rwlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Initialize read-write lock for concurrent readers / exclusive writer." },
+      { "name": "pthread_rwlock_rdlock", "header": "<pthread.h>", "signature": "int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);", "category": "rwlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Acquire shared read lock." },
+      { "name": "pthread_rwlock_wrlock", "header": "<pthread.h>", "signature": "int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);", "category": "rwlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Acquire exclusive write lock." },
+      { "name": "pthread_rwlock_unlock", "header": "<pthread.h>", "signature": "int pthread_rwlock_unlock(pthread_rwlock_t *rwlock);", "category": "rwlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Release shared read or exclusive write lock." },
+      { "name": "pthread_barrier_init", "header": "<pthread.h>", "signature": "int pthread_barrier_init(pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, unsigned count);", "category": "barrier", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Initialize a synchronization barrier requiring count threads." },
+      { "name": "pthread_barrier_wait", "header": "<pthread.h>", "signature": "int pthread_barrier_wait(pthread_barrier_t *barrier);", "category": "barrier", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Synchronize participants at barrier until all count threads arrive." },
+      { "name": "pthread_spin_init", "header": "<pthread.h>", "signature": "int pthread_spin_init(pthread_spinlock_t *lock, int pshared);", "category": "spinlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Initialize a busy-waiting spinlock." },
+      { "name": "pthread_spin_lock", "header": "<pthread.h>", "signature": "int pthread_spin_lock(pthread_spinlock_t *lock);", "category": "spinlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Spin-wait until acquiring spinlock." },
+      { "name": "pthread_spin_unlock", "header": "<pthread.h>", "signature": "int pthread_spin_unlock(pthread_spinlock_t *lock);", "category": "spinlock", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Release spinlock." },
+      { "name": "pthread_key_create", "header": "<pthread.h>", "signature": "int pthread_key_create(pthread_key_t *key, void (*destructor)(void*));", "category": "tls", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Allocate thread-specific data key with per-thread destructor callback." },
+      { "name": "pthread_getspecific", "header": "<pthread.h>", "signature": "void *pthread_getspecific(pthread_key_t key);", "category": "tls", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Retrieve thread-specific data bound to key for the calling thread." },
+      { "name": "pthread_setspecific", "header": "<pthread.h>", "signature": "int pthread_setspecific(pthread_key_t key, const void *value);", "category": "tls", "posixIssue": "Issue 7 / Issue 8", "introducedIn2024": false, "description": "Bind thread-specific data pointer to key for the calling thread." }
+    ],
+    "mutexTypes": [
+      { "name": "PTHREAD_MUTEX_NORMAL", "description": "Does not detect deadlock. Relocking deadlocks; unlocking unowned causes undefined behavior." },
+      { "name": "PTHREAD_MUTEX_ERRORCHECK", "description": "Provides error checking. Relocking returns EDEADLK; unlocking unowned returns EPERM." },
+      { "name": "PTHREAD_MUTEX_RECURSIVE", "description": "Allows recursive locking by same thread with ownership lock counter." },
+      { "name": "PTHREAD_MUTEX_DEFAULT", "description": "Default mutex type configured by implementation." }
+    ],
+    "robustMutexSupport": true,
+    "synchronizationPrimitives": ["mutex", "rwlock", "condvar", "barrier", "spinlock", "semaphore", "once"]
+  },
+  "termios": {
+    "c_iflag": [
+      { "flag": "IGNBRK", "description": "Ignore BREAK condition on input line", "posixRequired": true },
+      { "flag": "BRKINT", "description": "Send SIGINT to foreground process group upon BREAK", "posixRequired": true },
+      { "flag": "IGNPAR", "description": "Ignore framing errors and parity errors", "posixRequired": true },
+      { "flag": "PARMRK", "description": "Mark parity and framing errors with \\0377 \\0 byte sequence", "posixRequired": true },
+      { "flag": "INPCK", "description": "Enable input parity checking", "posixRequired": true },
+      { "flag": "ISTRIP", "description": "Strip 8th bit off input characters", "posixRequired": true },
+      { "flag": "INLCR", "description": "Translate NL to CR on input", "posixRequired": true },
+      { "flag": "IGNCR", "description": "Ignore carriage return CR on input", "posixRequired": true },
+      { "flag": "ICRNL", "description": "Translate carriage return CR to newline NL on input", "posixRequired": true },
+      { "flag": "IXON", "description": "Enable start/stop XON/XOFF output software flow control", "posixRequired": true },
+      { "flag": "IXOFF", "description": "Enable start/stop XON/XOFF input software flow control", "posixRequired": true },
+      { "flag": "IXANY", "description": "Allow any typed character to restart stalled output", "posixRequired": true },
+      { "flag": "IMAXBEL", "description": "Ring terminal bell when input buffer is full", "posixRequired": false },
+      { "flag": "IUTF8", "description": "Terminal input line editing handles multi-byte UTF-8 boundaries", "posixRequired": false }
+    ],
+    "c_oflag": [
+      { "flag": "OPOST", "description": "Perform implementation-defined output processing", "posixRequired": true },
+      { "flag": "ONLCR", "description": "Map newline NL to CR-NL carriage return + newline on output", "posixRequired": true },
+      { "flag": "OCRNL", "description": "Map CR to NL on output", "posixRequired": true },
+      { "flag": "ONOCR", "description": "Do not output CR at column 0", "posixRequired": true },
+      { "flag": "ONLRET", "description": "Newline NL performs CR return function", "posixRequired": true },
+      { "flag": "OFILL", "description": "Send fill characters instead of timing delays", "posixRequired": true },
+      { "flag": "OFDEL", "description": "Fill character is ASCII DEL instead of NUL", "posixRequired": true }
+    ],
+    "c_cflag": [
+      { "flag": "CSIZE", "description": "Character size bitmask (CS5, CS6, CS7, CS8)", "posixRequired": true },
+      { "flag": "CS5", "description": "5 bits per character byte", "posixRequired": true },
+      { "flag": "CS6", "description": "6 bits per character byte", "posixRequired": true },
+      { "flag": "CS7", "description": "7 bits per character byte", "posixRequired": true },
+      { "flag": "CS8", "description": "8 bits per character byte (standard binary/UTF-8 mode)", "posixRequired": true },
+      { "flag": "CSTOPB", "description": "Send two stop bits instead of one", "posixRequired": true },
+      { "flag": "CREAD", "description": "Enable receiver hardware", "posixRequired": true },
+      { "flag": "PARENB", "description": "Enable parity bit generation on output and checking on input", "posixRequired": true },
+      { "flag": "PARODD", "description": "Odd parity if PARENB set; else even parity", "posixRequired": true },
+      { "flag": "HUPCL", "description": "Lower modem control lines when last process closes device", "posixRequired": true },
+      { "flag": "CLOCAL", "description": "Ignore modem status control lines (local line mode)", "posixRequired": true }
+    ],
+    "c_lflag": [
+      { "flag": "ISIG", "description": "Generate signals (SIGINT, SIGQUIT, SIGTSTP) when control chars typed", "posixRequired": true },
+      { "flag": "ICANON", "description": "Enable canonical line-buffered input mode", "posixRequired": true },
+      { "flag": "ECHO", "description": "Echo typed input characters back to terminal", "posixRequired": true },
+      { "flag": "ECHOE", "description": "Visually erase previous character on VERASE key", "posixRequired": true },
+      { "flag": "ECHOK", "description": "Visually erase entire line on VKILL key", "posixRequired": true },
+      { "flag": "ECHONL", "description": "Echo NL newline even if ECHO is disabled", "posixRequired": true },
+      { "flag": "NOFLSH", "description": "Disable queue flushing after interrupt, quit, or suspend signals", "posixRequired": true },
+      { "flag": "TOSTOP", "description": "Send SIGTTOU signal to background process trying to write to terminal", "posixRequired": true },
+      { "flag": "IEXTEN", "description": "Enable implementation-defined input extensions (e.g. LNEXT)", "posixRequired": true }
+    ],
+    "c_cc": [
+      { "symbol": "VINTR", "indexName": "c_cc[VINTR]", "defaultControlChar": "^C (0x03)", "description": "Interrupt character generating SIGINT" },
+      { "symbol": "VQUIT", "indexName": "c_cc[VQUIT]", "defaultControlChar": "^\\ (0x1C)", "description": "Quit character generating SIGQUIT" },
+      { "symbol": "VERASE", "indexName": "c_cc[VERASE]", "defaultControlChar": "^? or ^H (0x7F / 0x08)", "description": "Erase character deleting previous character in canonical mode" },
+      { "symbol": "VKILL", "indexName": "c_cc[VKILL]", "defaultControlChar": "^U (0x15)", "description": "Kill character deleting current line in canonical mode" },
+      { "symbol": "VEOF", "indexName": "c_cc[VEOF]", "defaultControlChar": "^D (0x04)", "description": "End-of-file character in canonical mode" },
+      { "symbol": "VTIME", "indexName": "c_cc[VTIME]", "defaultControlChar": "0 (deciseconds)", "description": "Inter-byte timer in non-canonical mode" },
+      { "symbol": "VMIN", "indexName": "c_cc[VMIN]", "defaultControlChar": "1 (characters)", "description": "Minimum character count in non-canonical mode" },
+      { "symbol": "VSUSP", "indexName": "c_cc[VSUSP]", "defaultControlChar": "^Z (0x1A)", "description": "Suspend character generating SIGTSTP" },
+      { "symbol": "VEOL", "indexName": "c_cc[VEOL]", "defaultControlChar": "NUL (0x00)", "description": "Additional end-of-line character" },
+      { "symbol": "VSTART", "indexName": "c_cc[VSTART]", "defaultControlChar": "^Q (0x11)", "description": "XON resume output character" },
+      { "symbol": "VSTOP", "indexName": "c_cc[VSTOP]", "defaultControlChar": "^S (0x13)", "description": "XOFF stall output character" },
+      { "symbol": "VEOL2", "indexName": "c_cc[VEOL2]", "defaultControlChar": "NUL (0x00)", "description": "Second additional end-of-line character" }
+    ],
+    "baudRates": [
+      { "name": "B0", "speedBps": 0 },
+      { "name": "B50", "speedBps": 50 },
+      { "name": "B75", "speedBps": 75 },
+      { "name": "B110", "speedBps": 110 },
+      { "name": "B134", "speedBps": 134 },
+      { "name": "B150", "speedBps": 150 },
+      { "name": "B200", "speedBps": 200 },
+      { "name": "B300", "speedBps": 300 },
+      { "name": "B600", "speedBps": 600 },
+      { "name": "B1200", "speedBps": 1200 },
+      { "name": "B1800", "speedBps": 1800 },
+      { "name": "B2400", "speedBps": 2400 },
+      { "name": "B4800", "speedBps": 4800 },
+      { "name": "B9600", "speedBps": 9600 },
+      { "name": "B19200", "speedBps": 19200 },
+      { "name": "B38400", "speedBps": 38400 },
+      { "name": "B57600", "speedBps": 57600 },
+      { "name": "B115200", "speedBps": 115200 },
+      { "name": "B230400", "speedBps": 230400 }
+    ],
+    "functions": [
+      { "name": "tcgetattr", "signature": "int tcgetattr(int fd, struct termios *termios_p);", "header": "<termios.h>", "description": "Get current terminal state parameters." },
+      { "name": "tcsetattr", "signature": "int tcsetattr(int fd, int optional_actions, const struct termios *termios_p);", "header": "<termios.h>", "description": "Set terminal attributes immediately (TCSANOW), after drain (TCSADRAIN), or after flush (TCSAFLUSH)." },
+      { "name": "tcsendbreak", "signature": "int tcsendbreak(int fd, int duration);", "header": "<termios.h>", "description": "Transmit a continuous stream of zero-valued bits (BREAK)." },
+      { "name": "tcdrain", "signature": "int tcdrain(int fd);", "header": "<termios.h>", "description": "Wait until all queued output has been transmitted to terminal." },
+      { "name": "tcflush", "signature": "int tcflush(int fd, int queue_selector);", "header": "<termios.h>", "description": "Discard untransmitted data or unread input (TCIFLUSH, TCOFLUSH, TCIOFLUSH)." },
+      { "name": "tcflow", "signature": "int tcflow(int fd, int action);", "header": "<termios.h>", "description": "Suspend transmission or reception of data (TCOOFF, TCOON, TCIOFF, TCION)." },
+      { "name": "cfgetispeed", "signature": "speed_t cfgetispeed(const struct termios *termios_p);", "header": "<termios.h>", "description": "Return input baud rate speed encoding." },
+      { "name": "cfgetospeed", "signature": "speed_t cfgetospeed(const struct termios *termios_p);", "header": "<termios.h>", "description": "Return output baud rate speed encoding." },
+      { "name": "cfsetispeed", "signature": "int cfsetispeed(struct termios *termios_p, speed_t speed);", "header": "<termios.h>", "description": "Set input baud rate speed in termios structure." },
+      { "name": "cfsetospeed", "signature": "int cfsetospeed(struct termios *termios_p, speed_t speed);", "header": "<termios.h>", "description": "Set output baud rate speed in termios structure." }
+    ]
+  },
+  "vfs": {
+    "openFlags": [
+      { "flag": "O_RDONLY", "description": "Open file for read-only access", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_WRONLY", "description": "Open file for write-only access", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_RDWR", "description": "Open file for reading and writing", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_CREAT", "description": "Create file if it does not already exist", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_EXCL", "description": "Ensure atomic creation; fail if file already exists with O_CREAT", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_NOCTTY", "description": "Do not assign file as process controlling terminal", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_TRUNC", "description": "Truncate existing regular file length to 0 bytes", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_APPEND", "description": "Append writes atomically to the end of the file", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_NONBLOCK", "description": "Open and future I/O operations will not block (EAGAIN/EWOULDBLOCK)", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_SYNC", "description": "Synchronous I/O: file data and metadata written to physical medium before write completes", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_DSYNC", "description": "Data synchronous I/O: file data written to medium without unnecessary metadata sync", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_RSYNC", "description": "Synchronous read operations wait for pending writes to flush", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_DIRECTORY", "description": "Fail if target pathname is not a directory (ENOTDIR)", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_NOFOLLOW", "description": "Fail if trailing path component is a symbolic link (ELOOP)", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_CLOEXEC", "description": "Enable close-on-exec atomically preventing descriptor leakage across execve", "posix2024New": false, "gnuSpecific": false },
+      { "flag": "O_PATH", "description": "Obtain descriptor for path operations without opening actual data channel", "posix2024New": true, "gnuSpecific": true },
+      { "flag": "O_TMPFILE", "description": "Create an unnamed temporary inode in directory", "posix2024New": true, "gnuSpecific": true }
+    ],
+    "seekWhence": ["SEEK_SET", "SEEK_CUR", "SEEK_END", "SEEK_DATA", "SEEK_HOLE"],
+    "fileTypes": [
+      { "modeMacro": "S_IFREG", "typeName": "Regular File", "dtType": "DT_REG" },
+      { "modeMacro": "S_IFDIR", "typeName": "Directory", "dtType": "DT_DIR" },
+      { "modeMacro": "S_IFCHR", "typeName": "Character Device", "dtType": "DT_CHR" },
+      { "modeMacro": "S_IFBLK", "typeName": "Block Device", "dtType": "DT_BLK" },
+      { "modeMacro": "S_IFIFO", "typeName": "FIFO / Named Pipe", "dtType": "DT_FIFO" },
+      { "modeMacro": "S_IFLNK", "typeName": "Symbolic Link", "dtType": "DT_LNK" },
+      { "modeMacro": "S_IFSOCK", "typeName": "UNIX Domain Socket", "dtType": "DT_SOCK" }
+    ],
+    "atSuffixSyscalls": [
+      { "name": "openat", "signature": "int openat(int dirfd, const char *path, int flags, ...)", "description": "Open file relative to directory descriptor" },
+      { "name": "faccessat", "signature": "int faccessat(int dirfd, const char *path, int mode, int flags)", "description": "Check access permissions relative to directory descriptor" },
+      { "name": "fstatat", "signature": "int fstatat(int dirfd, const char *path, struct stat *buf, int flags)", "description": "Stat file relative to directory descriptor" },
+      { "name": "unlinkat", "signature": "int unlinkat(int dirfd, const char *path, int flags)", "description": "Remove directory entry relative to directory descriptor (supports AT_REMOVEDIR)" },
+      { "name": "mkdirat", "signature": "int mkdirat(int dirfd, const char *path, mode_t mode)", "description": "Create directory relative to directory descriptor" },
+      { "name": "renameat", "signature": "int renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath)", "description": "Rename directory entry between directory descriptors" },
+      { "name": "readlinkat", "signature": "ssize_t readlinkat(int dirfd, const char *path, char *buf, size_t bufsiz)", "description": "Read symbolic link contents relative to directory descriptor" },
+      { "name": "symlinkat", "signature": "int symlinkat(const char *target, int newdirfd, const char *linkpath)", "description": "Create symbolic link relative to directory descriptor" },
+      { "name": "linkat", "signature": "int linkat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath, int flags)", "description": "Create hard link between directory descriptors" },
+      { "name": "fchmodat", "signature": "int fchmodat(int dirfd, const char *path, mode_t mode, int flags)", "description": "Change mode permissions relative to directory descriptor" },
+      { "name": "fchownat", "signature": "int fchownat(int dirfd, const char *path, uid_t owner, gid_t group, int flags)", "description": "Change ownership relative to directory descriptor" },
+      { "name": "utimensat", "signature": "int utimensat(int dirfd, const char *path, const struct timespec times[2], int flags)", "description": "Update timestamps with nanosecond precision relative to directory descriptor" }
+    ]
+  },
+  "gnuExtensions": {
+    "compatible": true,
+    "coreutilsVersion": "9.5",
+    "rustixVersion": "0.38",
+    "features": [
+      "getopt_long",
+      "getopt_long_only",
+      "asprintf",
+      "vasprintf",
+      "canonicalize_file_name",
+      "execvpe",
+      "err.h",
+      "qsort_r",
+      "strndupa",
+      "strdupa",
+      "procfs_emulation",
+      "cgroups_v2_mapping"
+    ],
+    "functions": [
+      {
+        "name": "getopt_long",
+        "header": "<getopt.h>",
+        "signature": "int getopt_long(int argc, char *const argv[], const char *optstring, const struct option *longopts, int *longindex);",
+        "description": "Parses command-line options supporting both short POSIX options (-a) and GNU long options (--alpha, --file=value).",
+        "gnulibEquivalent": "getopt-gnu",
+        "glibcIntroducedVersion": "glibc 2.0",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "getopt_long_only",
+        "header": "<getopt.h>",
+        "signature": "int getopt_long_only(int argc, char *const argv[], const char *optstring, const struct option *longopts, int *longindex);",
+        "description": "Parses command-line options where long options can also begin with a single dash '-'.",
+        "gnulibEquivalent": "getopt-gnu",
+        "glibcIntroducedVersion": "glibc 2.0",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "asprintf",
+        "header": "<stdio.h>",
+        "signature": "int asprintf(char **strp, const char *fmt, ...);",
+        "description": "Dynamically allocates a string buffer with malloc() of sufficient size holding formatted output, storing the pointer in *strp.",
+        "gnulibEquivalent": "vasprintf",
+        "glibcIntroducedVersion": "glibc 2.1",
+        "posixAdoptionStatus": "adopted_in_2024"
+      },
+      {
+        "name": "vasprintf",
+        "header": "<stdio.h>",
+        "signature": "int vasprintf(char **strp, const char *fmt, va_list ap);",
+        "description": "Variable-argument equivalent of asprintf().",
+        "gnulibEquivalent": "vasprintf",
+        "glibcIntroducedVersion": "glibc 2.1",
+        "posixAdoptionStatus": "adopted_in_2024"
+      },
+      {
+        "name": "canonicalize_file_name",
+        "header": "<stdlib.h>",
+        "signature": "char *canonicalize_file_name(const char *path);",
+        "description": "GNU extension returning the canonicalized absolute path with all symlinks, /./, and /../ resolved, equivalent to realpath(path, NULL).",
+        "gnulibEquivalent": "canonicalize",
+        "glibcIntroducedVersion": "glibc 2.0",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "execvpe",
+        "header": "<unistd.h>",
+        "signature": "int execvpe(const char *file, char *const argv[], char *const envp[]);",
+        "description": "Executes program located via PATH search while simultaneously passing an explicit environment array envp.",
+        "gnulibEquivalent": "execvpe",
+        "glibcIntroducedVersion": "glibc 2.11",
+        "posixAdoptionStatus": "adopted_in_2024"
+      },
+      {
+        "name": "err",
+        "header": "<err.h>",
+        "signature": "void err(int eval, const char *fmt, ...);",
+        "description": "Outputs formatted error message followed by strerror(errno) to stderr and terminates process with exit(eval).",
+        "gnulibEquivalent": "error",
+        "glibcIntroducedVersion": "glibc 2.0 (BSD origin)",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "errx",
+        "header": "<err.h>",
+        "signature": "void errx(int eval, const char *fmt, ...);",
+        "description": "Outputs formatted error message to stderr without appending strerror(errno) and terminates with exit(eval).",
+        "gnulibEquivalent": "error",
+        "glibcIntroducedVersion": "glibc 2.0 (BSD origin)",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "warn",
+        "header": "<err.h>",
+        "signature": "void warn(const char *fmt, ...);",
+        "description": "Outputs formatted warning message followed by strerror(errno) to stderr without exiting.",
+        "gnulibEquivalent": "error",
+        "glibcIntroducedVersion": "glibc 2.0 (BSD origin)",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "warnx",
+        "header": "<err.h>",
+        "signature": "void warnx(const char *fmt, ...);",
+        "description": "Outputs formatted warning message to stderr without appending strerror(errno) and without exiting.",
+        "gnulibEquivalent": "error",
+        "glibcIntroducedVersion": "glibc 2.0 (BSD origin)",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "qsort_r",
+        "header": "<stdlib.h>",
+        "signature": "void qsort_r(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *, void *), void *arg);",
+        "description": "Reentrant sorting function passing custom context pointer arg to comparator function (GNU order: compar receives arg as 3rd parameter; BSD order puts arg 1st).",
+        "gnulibEquivalent": "qsort_r",
+        "glibcIntroducedVersion": "glibc 2.8",
+        "posixAdoptionStatus": "adopted_in_2024"
+      },
+      {
+        "name": "strndupa",
+        "header": "<string.h>",
+        "signature": "char *strndupa(const char *s, size_t n);",
+        "description": "Allocates a copy of up to n characters of string s on the stack frame using alloca(). Memory automatically freed upon function return.",
+        "gnulibEquivalent": "strndup",
+        "glibcIntroducedVersion": "glibc 2.0",
+        "posixAdoptionStatus": "non_standard_gnu"
+      },
+      {
+        "name": "strdupa",
+        "header": "<string.h>",
+        "signature": "char *strdupa(const char *s);",
+        "description": "Allocates a copy of string s on the stack frame using alloca(). Memory automatically freed upon function return.",
+        "gnulibEquivalent": "strdup",
+        "glibcIntroducedVersion": "glibc 2.0",
+        "posixAdoptionStatus": "non_standard_gnu"
+      }
+    ],
+    "headers": ["<getopt.h>", "<err.h>", "<error.h>", "<malloc.h>", "<search.h>", "<sched.h>"],
+    "procfsEmulation": [
+      { "path": "/proc/self/fd/", "purpose": "Directory containing symlinks to open file descriptors for the process", "posixAlternative": "fcntl(F_GETFD) / fstat()" },
+      { "path": "/proc/self/exe", "purpose": "Symlink to current running binary executable path", "posixAlternative": "argv[0] traversal / posix_spawn" },
+      { "path": "/proc/self/status", "purpose": "Human-readable breakdown of process state, memory RSS/VMS, and credentials", "posixAlternative": "getrusage() / sysconf()" },
+      { "path": "/proc/self/cmdline", "purpose": "NUL-separated argument list passed to process initialization", "posixAlternative": "argv main parameter" },
+      { "path": "/proc/cpuinfo", "purpose": "CPU topology, clock frequencies, cache sizes, and ISA extension flags", "posixAlternative": "sysconf(_SC_NPROCESSORS_ONLN)" },
+      { "path": "/proc/meminfo", "purpose": "Physical memory metrics (MemTotal, MemFree, Buffers, Cached)", "posixAlternative": "sysconf(_SC_PHYS_PAGES) * sysconf(_SC_PAGESIZE)" }
+    ],
+    "cgroupsV2Mapping": [
+      { "controller": "cpu", "cgroupInterfaceFile": "cpu.max / cpu.weight", "posixEquivalentInterface": "nice() / setpriority() / sched_setscheduler()", "description": "CFS quota and dynamic thread CPU bandwidth shares mapped to POSIX real-time and static nice priority levels." },
+      { "controller": "memory", "cgroupInterfaceFile": "memory.max / memory.high", "posixEquivalentInterface": "setrlimit(RLIMIT_AS) / setrlimit(RLIMIT_DATA)", "description": "Hard address space ceiling and soft proactive reclaim throttle mapped to POSIX address space resource limits." },
+      { "controller": "pids", "cgroupInterfaceFile": "pids.max / pids.current", "posixEquivalentInterface": "setrlimit(RLIMIT_NPROC)", "description": "Maximum concurrent processes/threads in sub-hierarchy mapped to POSIX process count rlimit." },
+      { "controller": "io", "cgroupInterfaceFile": "io.max / io.weight", "posixEquivalentInterface": "posix_fadvise() / sync()", "description": "Proportional and throttle bounds on per-block-device IOPS and bytes per second." },
+      { "controller": "freezer", "cgroupInterfaceFile": "cgroup.freeze", "posixEquivalentInterface": "kill(-pgid, SIGSTOP) / kill(-pgid, SIGCONT)", "description": "Kernel-level seamless process group freeze and thaw without signal delivery side effects." }
+    ],
+    "coreutilsSpecifications": [
+      {
+        "utility": "ls",
+        "posixConformant": true,
+        "gnuExtensions": ["--color=auto", "--hyperlink", "--time-style=long-iso", "--group-directories-first", "--indicator-style=classify"],
+        "exitCodes": { "0": "Success", "1": "Minor problems (e.g. cannot access subdirectory)", "2": "Serious trouble (e.g. invalid command-line argument)" }
+      },
+      {
+        "utility": "cat",
+        "posixConformant": true,
+        "gnuExtensions": ["-A/--show-all", "-b/--number-nonblank", "-e", "-E/--show-ends", "-n/--number", "-s/--squeeze-blank", "-t", "-T/--show-tabs", "-v/--show-nonprinting"],
+        "exitCodes": { "0": "All input files successfully copied", "1": "Error reading or writing files" }
+      },
+      {
+        "utility": "cp",
+        "posixConformant": true,
+        "gnuExtensions": ["--reflink=auto", "--backup=numbered", "--preserve=all", "--no-clobber", "--sparse=always", "--update=older"],
+        "exitCodes": { "0": "All files copied", "1": "Copy failure encountered" }
+      },
+      {
+        "utility": "mv",
+        "posixConformant": true,
+        "gnuExtensions": ["--backup", "--no-clobber", "--strip-trailing-slashes", "--target-directory"],
+        "exitCodes": { "0": "All files moved/renamed", "1": "Move operation failed" }
+      },
+      {
+        "utility": "rm",
+        "posixConformant": true,
+        "gnuExtensions": ["--one-file-system", "--no-preserve-root", "--preserve-root=all"],
+        "exitCodes": { "0": "All specified files removed", "1": "Error removing one or more files" }
+      },
+      {
+        "utility": "kill",
+        "posixConformant": true,
+        "gnuExtensions": ["-L/--table", "-q/--queue (sigqueue value payload)"],
+        "exitCodes": { "0": "All signals sent", "1": "Invalid signal or insufficient privilege" }
+      }
+    ]
+  },
+  "rustEcosystem": {
+    "crates": [
+      {
+        "name": "libc",
+        "role": "Raw C FFI bindings",
+        "safetyPhilosophy": "100% unsafe C ABI declarations matching platform libc headers verbatim.",
+        "posixCoverage": "Comprehensive coverage of POSIX.1-2008 / POSIX.1-2024 symbols and GNU libc extensions across Linux, macOS, BSD, Illumos, Windows MSVC/GNU."
+      },
+      {
+        "name": "nix",
+        "role": "Idiomatic safe POSIX / UNIX Rust bindings",
+        "safetyPhilosophy": "Safe Rust wrappers converting raw pointers to slices/references and errno return codes to Result<T, nix::errno::Errno>.",
+        "posixCoverage": "Extensive modules covering unistd, fcntl, sys::socket, sys::signal, sys::termios, sys::wait, sys::stat, sys::mman."
+      },
+      {
+        "name": "rustix",
+        "role": "Safe direct Linux/UNIX syscall layer",
+        "safetyPhilosophy": "Bypasses C runtime on Linux/Android by default using safe inline assembly system calls; wraps libc on BSD/macOS. Zero-cost file descriptor lifecycles via BorrowedFd and OwnedFd.",
+        "posixCoverage": "Subsystems: rustix::fs, rustix::io, rustix::net, rustix::process, rustix::thread, rustix::termios, rustix::event, rustix::mm."
+      },
+      {
+        "name": "uutils-coreutils",
+        "role": "Pure Rust GNU Coreutils reimplementation",
+        "safetyPhilosophy": "Memory-safe Rust CLI implementations matching GNU CLI flags, environment variables (POSIXLY_CORRECT), and edge-case behavior.",
+        "posixCoverage": "100+ utilities implementing both POSIX Utility Conventions and GNU coreutils extensions with 99%+ test suite parity."
+      }
+    ],
+    "abstractions": [
+      {
+        "subsystem": "File Descriptors / VFS",
+        "posixFunction": "openat / close / read / write",
+        "libcBinding": "libc::openat(dirfd, path, flags, mode)",
+        "nixSafeWrapper": "nix::fcntl::openat(dirfd, path, OFlag, Mode)",
+        "rustixDirectSyscall": "rustix::fs::openat(dirfd, path, OFlags, Mode)"
+      },
+      {
+        "subsystem": "Process Spawning",
+        "posixFunction": "posix_spawn",
+        "libcBinding": "libc::posix_spawn(&mut pid, path, actions, attr, argv, envp)",
+        "nixSafeWrapper": "nix::spawn::posix_spawn(path, actions, attr, argv, envp)",
+        "rustixDirectSyscall": "rustix::process::posix_spawn(path, actions, attr, argv, envp)"
+      },
+      {
+        "subsystem": "Sockets",
+        "posixFunction": "accept4",
+        "libcBinding": "libc::accept4(sockfd, addr, addrlen, flags)",
+        "nixSafeWrapper": "nix::sys::socket::accept4(sockfd, SockFlag)",
+        "rustixDirectSyscall": "rustix::net::accept4(sockfd, SocketFlags)"
+      },
+      {
+        "subsystem": "Terminal I/O",
+        "posixFunction": "tcgetattr / tcsetattr",
+        "libcBinding": "libc::tcgetattr(fd, termios) / libc::tcsetattr(fd, action, termios)",
+        "nixSafeWrapper": "nix::sys::termios::tcgetattr(fd) / tcsetattr(fd, SetArg, &termios)",
+        "rustixDirectSyscall": "rustix::termios::tcgetattr(fd) / tcsetattr(fd, OptionalActions, &termios)"
+      },
+      {
+        "subsystem": "Multiplexing",
+        "posixFunction": "ppoll",
+        "libcBinding": "libc::ppoll(fds, nfds, timeout, sigmask)",
+        "nixSafeWrapper": "nix::poll::ppoll(fds, timeout, sigmask)",
+        "rustixDirectSyscall": "rustix::event::ppoll(fds, timeout, sigmask)"
+      },
+      {
+        "subsystem": "Memory Mapping",
+        "posixFunction": "mmap / munmap",
+        "libcBinding": "libc::mmap(addr, len, prot, flags, fd, offset)",
+        "nixSafeWrapper": "nix::sys::mman::mmap(addr, len, ProtFlags, MapFlags, fd, offset)",
+        "rustixDirectSyscall": "rustix::mm::mmap(addr, len, ProtFlags, MapFlags, fd, offset)"
+      }
+    ]
+  }
+}

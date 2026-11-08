@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="wayland">
+  <copyright>
+    Copyright © 2008-2011 Kristian Høgsberg
+    Copyright © 2010-2011 Intel Corporation
+  </copyright>
+
+  <interface name="wl_display" version="1">
+    <description summary="core global object">
+      The core global object. This is a special singleton object.
+    </description>
+
+    <request name="sync">
+      <description summary="verify requests have been processed">
+        The sync request asks the server to emit the 'done' event on the returned wl_callback object.
+      </description>
+      <arg name="callback" type="new_id" interface="wl_callback"/>
+    </request>
+
+    <request name="get_registry">
+      <description summary="get global registry object">
+        This request creates a registry object that allows the client to list and bind global interfaces.
+      </description>
+      <arg name="registry" type="new_id" interface="wl_registry"/>
+    </request>
+
+    <event name="error">
+      <description summary="fatal error was detected">
+        The error event is sent out when a fatal (non-recoverable) error has occurred.
+      </description>
+      <arg name="object_id" type="object"/>
+      <arg name="code" type="uint"/>
+      <arg name="message" type="string"/>
+    </event>
+
+    <event name="delete_id">
+      <description summary="acknowledge object ID deletion">
+        This event indicates that the numerical ID for an object is now reusable.
+      </description>
+      <arg name="id" type="uint"/>
+    </event>
+  </interface>
+
+  <interface name="wl_compositor" version="4">
+    <description summary="the compositor singleton">
+      A compositor. This object is a singleton global.
+    </description>
+
+    <request name="create_surface">
+      <description summary="create new surface">
+        Ask the compositor to create a new surface.
+      </description>
+      <arg name="id" type="new_id" interface="wl_surface"/>
+    </request>
+  </interface>
+</protocol>

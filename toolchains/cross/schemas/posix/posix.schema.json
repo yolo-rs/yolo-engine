@@ -1,0 +1,498 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yolo-standards.org/schemas/posix/posix.schema.json",
+  "title": "POSIX.1-2024 (IEEE 1003.1-2024 / Issue 8) & GNU Extensions Specification Schema",
+  "description": "Comprehensive schema covering IEEE Std 1003.1-2024 (POSIX.1-2024 / The Open Group Base Specifications Issue 8), Single UNIX Specification, errno codes, signals, pthreads, VFS/file descriptors, sockets, termios terminal interfaces, GNU/glibc extensions (getopt_long, asprintf, canonicalize_file_name), and modern Rust implementation mappings (libc, nix, uutils, rustix).",
+  "type": "object",
+  "required": [
+    "standard",
+    "edition",
+    "year",
+    "headers",
+    "interfaces",
+    "utilities",
+    "syscalls",
+    "errnoCodes",
+    "signals",
+    "sigactionFlags",
+    "pthreads",
+    "termios",
+    "vfs",
+    "gnuExtensions",
+    "rustEcosystem"
+  ],
+  "properties": {
+    "standard": {
+      "type": "string",
+      "description": "Name of standard, e.g. POSIX.1-2024"
+    },
+    "edition": {
+      "type": "string",
+      "description": "Standard edition, e.g. Issue 8"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Year of standard publication, e.g. 2024"
+    },
+    "specUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "headers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of standard POSIX.1-2024 headers"
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "header"],
+        "properties": {
+          "name": { "type": "string" },
+          "header": { "type": "string" },
+          "section": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "utilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": { "type": ["number", "string"] }
+    },
+    "syscalls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/syscallDefinition"
+      }
+    },
+    "errnoCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/errnoDefinition"
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/signalDefinition"
+      }
+    },
+    "sigactionFlags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sigactionFlagDefinition"
+      }
+    },
+    "pthreads": {
+      "type": "object",
+      "required": ["apis", "mutexTypes", "robustMutexSupport", "synchronizationPrimitives"],
+      "properties": {
+        "apis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pthreadApiDefinition"
+          }
+        },
+        "mutexTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "robustMutexSupport": { "type": "boolean" },
+        "synchronizationPrimitives": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "termios": {
+      "type": "object",
+      "required": [
+        "c_iflag",
+        "c_oflag",
+        "c_cflag",
+        "c_lflag",
+        "c_cc",
+        "baudRates",
+        "functions"
+      ],
+      "properties": {
+        "c_iflag": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/termiosFlagDefinition" }
+        },
+        "c_oflag": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/termiosFlagDefinition" }
+        },
+        "c_cflag": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/termiosFlagDefinition" }
+        },
+        "c_lflag": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/termiosFlagDefinition" }
+        },
+        "c_cc": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["symbol", "indexName", "defaultControlChar", "description"],
+            "properties": {
+              "symbol": { "type": "string" },
+              "indexName": { "type": "string" },
+              "defaultControlChar": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "baudRates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "speedBps"],
+            "properties": {
+              "name": { "type": "string" },
+              "speedBps": { "type": "integer" }
+            }
+          }
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "signature", "header", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "signature": { "type": "string" },
+              "header": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "vfs": {
+      "type": "object",
+      "required": ["openFlags", "seekWhence", "fileTypes", "atSuffixSyscalls"],
+      "properties": {
+        "openFlags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["flag", "description"],
+            "properties": {
+              "flag": { "type": "string" },
+              "description": { "type": "string" },
+              "posix2024New": { "type": "boolean" },
+              "gnuSpecific": { "type": "boolean" }
+            }
+          }
+        },
+        "seekWhence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fileTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["modeMacro", "typeName", "dtType"],
+            "properties": {
+              "modeMacro": { "type": "string" },
+              "typeName": { "type": "string" },
+              "dtType": { "type": "string" }
+            }
+          }
+        },
+        "atSuffixSyscalls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "signature", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "signature": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "gnuExtensions": {
+      "type": "object",
+      "required": [
+        "compatible",
+        "functions",
+        "headers",
+        "procfsEmulation",
+        "cgroupsV2Mapping",
+        "coreutilsSpecifications"
+      ],
+      "properties": {
+        "compatible": { "type": "boolean" },
+        "coreutilsVersion": { "type": "string" },
+        "rustixVersion": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "functions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "header", "signature", "description", "gnulibEquivalent"],
+            "properties": {
+              "name": { "type": "string" },
+              "header": { "type": "string" },
+              "signature": { "type": "string" },
+              "description": { "type": "string" },
+              "gnulibEquivalent": { "type": "string" },
+              "glibcIntroducedVersion": { "type": "string" },
+              "posixAdoptionStatus": {
+                "type": "string",
+                "enum": ["adopted_in_2024", "non_standard_gnu", "proposed_for_issue9"]
+              }
+            }
+          }
+        },
+        "headers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "procfsEmulation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "purpose"],
+            "properties": {
+              "path": { "type": "string" },
+              "purpose": { "type": "string" },
+              "posixAlternative": { "type": "string" }
+            }
+          }
+        },
+        "cgroupsV2Mapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["controller", "cgroupInterfaceFile", "posixEquivalentInterface", "description"],
+            "properties": {
+              "controller": { "type": "string" },
+              "cgroupInterfaceFile": { "type": "string" },
+              "posixEquivalentInterface": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "coreutilsSpecifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["utility", "posixConformant", "gnuExtensions", "exitCodes"],
+            "properties": {
+              "utility": { "type": "string" },
+              "posixConformant": { "type": "boolean" },
+              "gnuExtensions": { "type": "array", "items": { "type": "string" } },
+              "exitCodes": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rustEcosystem": {
+      "type": "object",
+      "required": ["crates", "abstractions"],
+      "properties": {
+        "crates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "role", "safetyPhilosophy", "posixCoverage"],
+            "properties": {
+              "name": { "type": "string" },
+              "role": { "type": "string" },
+              "safetyPhilosophy": { "type": "string" },
+              "posixCoverage": { "type": "string" }
+            }
+          }
+        },
+        "abstractions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "subsystem",
+              "posixFunction",
+              "libcBinding",
+              "nixSafeWrapper",
+              "rustixDirectSyscall"
+            ],
+            "properties": {
+              "subsystem": { "type": "string" },
+              "posixFunction": { "type": "string" },
+              "libcBinding": { "type": "string" },
+              "nixSafeWrapper": { "type": "string" },
+              "rustixDirectSyscall": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "syscallDefinition": {
+      "type": "object",
+      "required": [
+        "name",
+        "header",
+        "category",
+        "returnType",
+        "signature",
+        "parameters",
+        "posixIssue",
+        "introducedIn2024",
+        "errnos",
+        "description",
+        "rustMapping"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "header": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "io",
+            "filesystem",
+            "process",
+            "signals",
+            "pthreads",
+            "ipc",
+            "network",
+            "memory",
+            "terminal",
+            "time",
+            "security"
+          ]
+        },
+        "returnType": { "type": "string" },
+        "signature": { "type": "string" },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "type", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "posixIssue": { "type": "string" },
+        "introducedIn2024": { "type": "boolean" },
+        "errnos": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "description": { "type": "string" },
+        "rustMapping": {
+          "type": "object",
+          "required": ["libc", "nix", "rustix"],
+          "properties": {
+            "libc": { "type": "string" },
+            "nix": { "type": "string" },
+            "rustix": { "type": "string" }
+          }
+        }
+      }
+    },
+    "errnoDefinition": {
+      "type": "object",
+      "required": ["code", "numericValueTypical", "description", "posixRequired"],
+      "properties": {
+        "code": { "type": "string" },
+        "numericValueTypical": { "type": "integer" },
+        "description": { "type": "string" },
+        "posixRequired": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    },
+    "signalDefinition": {
+      "type": "object",
+      "required": [
+        "name",
+        "numberTypical",
+        "defaultAction",
+        "catchable",
+        "posixRequired",
+        "description"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "numberTypical": { "type": "integer" },
+        "defaultAction": {
+          "type": "string",
+          "enum": ["terminate", "core_dump", "ignore", "stop", "continue"]
+        },
+        "catchable": { "type": "boolean" },
+        "posixRequired": { "type": "boolean" },
+        "description": { "type": "string" }
+      }
+    },
+    "sigactionFlagDefinition": {
+      "type": "object",
+      "required": ["name", "bitmaskHexTypical", "description"],
+      "properties": {
+        "name": { "type": "string" },
+        "bitmaskHexTypical": { "type": "string" },
+        "description": { "type": "string" },
+        "gnuSpecific": { "type": "boolean" }
+      }
+    },
+    "pthreadApiDefinition": {
+      "type": "object",
+      "required": ["name", "header", "signature", "category", "description"],
+      "properties": {
+        "name": { "type": "string" },
+        "header": { "type": "string" },
+        "signature": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["lifecycle", "mutex", "condvar", "rwlock", "barrier", "spinlock", "tls", "cancellation", "attributes"]
+        },
+        "posixIssue": { "type": "string" },
+        "introducedIn2024": { "type": "boolean" },
+        "description": { "type": "string" }
+      }
+    },
+    "termiosFlagDefinition": {
+      "type": "object",
+      "required": ["flag", "description"],
+      "properties": {
+        "flag": { "type": "string" },
+        "description": { "type": "string" },
+        "posixRequired": { "type": "boolean" }
+      }
+    }
+  }
+}

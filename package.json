@@ -17,7 +17,9 @@
     "mcp": "bun Engine/Source/Programs/cli.ts mcp",
     "gitdeps": "bun Engine/Source/Programs/cli.ts gitdeps",
     "epic:auth": "bun Engine/Source/Programs/cli.ts epic-auth",
-    "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts ./packages/epic-games-sdk/src/index.test.ts",
+    "pipeline": "bun Engine/Source/Programs/cli.ts pipeline",
+    "vps:sync": "bun deploy/vps/sync-ue6-vps.ts",
+    "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts ./packages/bun-plugin-yolo-engine/src/index.test.ts ./packages/epic-games-sdk/src/index.test.ts",
     "cloud:deploy": "bun deploy/streaming/cluster-orchestrator.ts",
     "r2:cpk:serve": "bun packages/yolo-cpk-stream/src/serve.ts"
   }

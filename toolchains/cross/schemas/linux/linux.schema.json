@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Linux Kernel Subsystems Schema (cgroups v2, sysfs, eBPF)",
+  "description": "Schema definition for Linux kernel interfaces including cgroups v2 hierarchy, sysfs attributes, and eBPF maps/programs",
+  "type": "object",
+  "properties": {
+    "kernelVersion": { "type": "string" },
+    "cgroupsV2": {
+      "type": "object",
+      "properties": {
+        "controllers": { "type": "array", "items": { "type": "string" } },
+        "coreFiles": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["controllers", "coreFiles"]
+    },
+    "sysfs": {
+      "type": "object",
+      "properties": {
+        "subsystems": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["subsystems"]
+    },
+    "ebpf": {
+      "type": "object",
+      "properties": {
+        "programTypes": { "type": "array", "items": { "type": "string" } },
+        "mapTypes": { "type": "array", "items": { "type": "string" } },
+        "attachTypes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["programTypes", "mapTypes", "attachTypes"]
+    }
+  },
+  "required": ["kernelVersion", "cgroupsV2", "sysfs", "ebpf"]
+}

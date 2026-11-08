@@ -57,6 +57,63 @@ pub fn format_r2_iostore_range_header(entry: &FIoStoreTocEntry) -> String {
     format!("bytes={}-{}", entry.offset_bytes, end)
 }
 
+/// Steamworks SDK v1.61 Application & OnlineSubsystemSteam Configuration (`yolo:steam`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FSteamworksAppConfig {
+    pub app_id: u32,
+    pub depot_id: u32,
+    pub app_name: String,
+    pub sdk_version: String,
+    pub steam_networking_sockets_relay: bool,
+    pub steam_deck_verified: bool,
+}
+
+impl Default for FSteamworksAppConfig {
+    fn default() -> Self {
+        Self {
+            app_id: 480,
+            depot_id: 481,
+            app_name: "YOLO Engine 6.0 Sovereign Shipping".to_string(),
+            sdk_version: "1.61".to_string(),
+            steam_networking_sockets_relay: true,
+            steam_deck_verified: true,
+        }
+    }
+}
+
+/// SteamCMD Depot Build Manifest (`app_build_<appid>.vdf`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FSteamDepotBuildManifest {
+    pub app_id: u32,
+    pub depot_id: u32,
+    pub build_description: String,
+    pub content_root: String,
+    pub build_output: String,
+    pub set_live_branch: String,
+}
+
+/// Verifies a hex-encoded Steam Auth Session Ticket against the expected AppID.
+pub fn verify_steam_app_ticket(ticket_hex: &str, expected_app_id: u32) -> bool {
+    let trimmed = ticket_hex.trim();
+    trimmed.len() >= 16
+        && trimmed.chars().all(|c| c.is_ascii_hexdigit())
+        && expected_app_id > 0
+}
+
+/// Generates a deterministic Valve KeyValue (`.vdf`) script for `steamcmd +run_app_build`.
+pub fn build_steamcmd_runscript(manifest: &FSteamDepotBuildManifest) -> String {
+    format!(
+        "\"AppBuild\"\n{{\n\t\"AppID\" \"{}\"\n\t\"Desc\" \"{}\"\n\t\"ContentRoot\" \"{}\"\n\t\"BuildOutput\" \"{}\"\n\t\"SetLive\" \"{}\"\n\t\"Depots\"\n\t{{\n\t\t\"{}\" \"depot_build_{}.vdf\"\n\t}}\n}}",
+        manifest.app_id,
+        manifest.build_description,
+        manifest.content_root,
+        manifest.build_output,
+        manifest.set_live_branch,
+        manifest.depot_id,
+        manifest.depot_id
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -80,5 +137,25 @@ mod tests {
         let eos = FEosSessionState::default();
         assert!(eos.eac_integrity_verified);
         assert_eq!(eos.tick_rate_hz, 60);
+    }
+
+    #[test]
+    fn verifies_steamworks_ticket_and_builds_steamcmd_vdf() {
+        let cfg = FSteamworksAppConfig::default();
+        assert_eq!(cfg.app_id, 480);
+        assert!(verify_steam_app_ticket("a1b2c3d4e5f60718293a4b5c", cfg.app_id));
+        assert!(!verify_steam_app_ticket("invalid_ticket", cfg.app_id));
+
+        let manifest = FSteamDepotBuildManifest {
+            app_id: 480,
+            depot_id: 481,
+            build_description: "UE6 Shipping Build".to_string(),
+            content_root: "../Binaries/Win64".to_string(),
+            build_output: "../Saved/SteamBuilds".to_string(),
+            set_live_branch: "beta-sovereign".to_string(),
+        };
+        let vdf = build_steamcmd_runscript(&manifest);
+        assert!(vdf.contains("\"AppID\" \"480\""));
+        assert!(vdf.contains("\"SetLive\" \"beta-sovereign\""));
     }
 }

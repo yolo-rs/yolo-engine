@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "W3C WebGPU Specification Model",
+  "description": "Schema definition for W3C WebGPU IDL and descriptor interfaces",
+  "type": "object",
+  "properties": {
+    "version": { "type": "string" },
+    "specUrl": { "type": "string", "format": "uri" },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "kind"],
+        "properties": {
+          "name": { "type": "string" },
+          "kind": { "type": "string", "enum": ["interface", "dictionary", "enum", "typedef"] },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "optional": { "type": "boolean" },
+                "readonly": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["version", "specUrl", "features", "limits", "interfaces"]
+}

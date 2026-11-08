@@ -1,0 +1,5 @@
+# YOLO Engine 6.0 (UE6) — Canonical Bun Configuration
+preload = ["./packages/bun-plugin-yolo-engine/src/preload.ts"]
+
+[test]
+preload = ["./packages/bun-plugin-yolo-engine/src/preload.ts"]

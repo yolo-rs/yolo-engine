@@ -1,0 +1,11 @@
+[package]
+name = "yolo-engine-re-game-porters"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Unified Reverse Engineering (REA/Replica/Ghidra/iced-x86), Zig/Rust/GNU/MSVC Cross-Compiler, Level-5 (nie* G4TX/G4MG/G4SK/G4PK/RDBN/Viola), Criware (CPK/CRILAYLA/USM/ACB/AWB), Bandai Namco UE4/UE5/UE6, and Offline Self-Hostable Steam/Valve/Epic DRM-Free Ownership Verifier & Multi-Target Game Porter (Windows, Linux, WebGPU, Mobile)"
+
+[dependencies]
+serde = { workspace = true }

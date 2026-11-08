@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://standards.yolo.io/schemas/virtualization/hypervisor.schema.json",
+  "title": "Hypervisor, Virtualization & QEMU Architecture Schema",
+  "description": "Standard schema for hypervisor configurations, backends (KVM, WHP, HVF, TCG), vCPU topologies, virtio device allocations, and DBT emulation engines (Rosetta 2, FEX-Emu, Box64, Unicorn).",
+  "type": "object",
+  "required": [
+    "hypervisorBackend",
+    "vcpuTopology",
+    "memoryConfig",
+    "accelerator",
+    "virtioDevices"
+  ],
+  "properties": {
+    "hypervisorBackend": {
+      "type": "string",
+      "enum": ["kvm", "whpx", "hvf", "tcg", "bhyve", "nvmm", "xen"]
+    },
+    "accelerator": {
+      "type": "object",
+      "required": ["type", "hardwareVirtualizationAvailable"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["kvm", "whpx", "hvf", "tcg"]
+        },
+        "hardwareVirtualizationAvailable": {
+          "type": "boolean"
+        },
+        "nestedPaging": {
+          "type": "boolean",
+          "description": "EPT (Extended Page Tables) or NPT (Nested Page Tables)"
+        },
+        "unrestrictedGuest": {
+          "type": "boolean"
+        },
+        "tcgConfig": {
+          "type": "object",
+          "properties": {
+            "mttcg": {
+              "type": "boolean",
+              "description": "Multi-Threaded TCG enabled"
+            },
+            "tbSizeMb": {
+              "type": "integer",
+              "description": "Translation Block cache size in megabytes"
+            },
+            "splitCodeAndData": {
+              "type": "boolean"
+            }
+          }
+        },
+        "whpxConfig": {
+          "type": "object",
+          "properties": {
+            "extendedVmExits": { "type": "boolean" },
+            "syntheticInterruptController": { "type": "boolean" }
+          }
+        },
+        "hvfConfig": {
+          "type": "object",
+          "properties": {
+            "vTimerSupport": { "type": "boolean" },
+            "apicVirtualization": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "vcpuTopology": {
+      "type": "object",
+      "required": ["sockets", "cores", "threads", "maxVcpus"],
+      "properties": {
+        "sockets": { "type": "integer", "minimum": 1 },
+        "cores": { "type": "integer", "minimum": 1 },
+        "threads": { "type": "integer", "minimum": 1 },
+        "maxVcpus": { "type": "integer", "minimum": 1 },
+        "cpuModel": { "type": "string" },
+        "cpuFeatures": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "affinityPinning": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vcpuId": { "type": "integer" },
+              "hostCpu": { "type": "integer" }
+            },
+            "required": ["vcpuId", "hostCpu"]
+          }
+        }
+      }
+    },
+    "memoryConfig": {
+      "type": "object",
+      "required": ["sizeMb", "hugepages"],
+      "properties": {
+        "sizeMb": { "type": "integer", "minimum": 128 },
+        "hugepages": { "type": "boolean" },
+        "hugepageSizeKb": { "type": "integer" },
+        "numaNodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nodeId": { "type": "integer" },
+              "sizeMb": { "type": "integer" },
+              "cpus": { "type": "array", "items": { "type": "integer" } }
+            },
+            "required": ["nodeId", "sizeMb", "cpus"]
+          }
+        },
+        "ballooning": { "type": "boolean" },
+        "sharedMemory": { "type": "boolean" }
+      }
+    },
+    "virtioDevices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "transport"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "virtio-net",
+              "virtio-block",
+              "virtio-fs",
+              "virtio-gpu",
+              "virtio-balloon",
+              "virtio-serial",
+              "virtio-rng",
+              "virtio-crypto",
+              "virtio-iommu",
+              "virtio-scsi",
+              "virtio-vsock"
+            ]
+          },
+          "transport": {
+            "type": "string",
+            "enum": ["pci", "mmio", "ccw"]
+          },
+          "vhostUser": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "emulationEngines": {
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": ["native", "rosetta2", "fex-emu", "box64", "unicorn2", "qemu-user"]
+        },
+        "guestArchitecture": {
+          "type": "string",
+          "enum": ["x86_64", "x86", "arm64", "arm", "riscv64", "mips"]
+        },
+        "hostArchitecture": {
+          "type": "string",
+          "enum": ["x86_64", "aarch64", "riscv64"]
+        },
+        "features": {
+          "type": "object",
+          "properties": {
+            "aheadOfTimeCompilation": { "type": "boolean" },
+            "dynamicBinaryTranslation": { "type": "boolean" },
+            "thunkingLibraries": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "fastTlb": { "type": "boolean" },
+            "atomicMemoryEmulation": {
+              "type": "string",
+              "enum": ["native-tsore", "futex-locks", "software-compare-and-swap"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

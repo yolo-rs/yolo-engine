@@ -1,0 +1,83 @@
+{
+  "protocol": "wayland",
+  "interfaces": [
+    {
+      "name": "wl_display",
+      "version": 1,
+      "description": "Core global object",
+      "requests": [
+        {
+          "name": "sync",
+          "args": [
+            {
+              "name": "callback",
+              "type": "new_id",
+              "interface": "wl_callback"
+            }
+          ]
+        },
+        {
+          "name": "get_registry",
+          "args": [
+            {
+              "name": "registry",
+              "type": "new_id",
+              "interface": "wl_registry"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "error",
+          "args": [
+            {
+              "name": "object_id",
+              "type": "object"
+            },
+            {
+              "name": "code",
+              "type": "uint"
+            },
+            {
+              "name": "message",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "delete_id",
+          "args": [
+            {
+              "name": "id",
+              "type": "uint"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wl_compositor",
+      "version": 4,
+      "description": "The compositor singleton",
+      "requests": [
+        {
+          "name": "create_surface",
+          "args": [
+            {
+              "name": "id",
+              "type": "new_id",
+              "interface": "wl_surface"
+            }
+          ]
+        }
+      ],
+      "events": []
+    }
+  ],
+  "_fetchedMeta": {
+    "url": "https://gitlab.freedesktop.org/wayland/wayland/-/raw/main/protocol/wayland.xml",
+    "fetchedAt": "2026-11-04T11:44:11.896Z",
+    "bytes": 168980
+  }
+}

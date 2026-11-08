@@ -1,0 +1,29 @@
+{
+  "api": "vulkan",
+  "version": "1.3.280",
+  "types": [
+    { "name": "VkInstance", "category": "handle" },
+    { "name": "VkDevice", "category": "handle" },
+    { "name": "VkQueue", "category": "handle" },
+    { "name": "VkCommandBuffer", "category": "handle" },
+    { "name": "VkResult", "category": "enum" }
+  ],
+  "enums": [
+    { "name": "VK_SUCCESS", "value": 0 },
+    { "name": "VK_NOT_READY", "value": 1 },
+    { "name": "VK_TIMEOUT", "value": 2 },
+    { "name": "VK_ERROR_OUT_OF_HOST_MEMORY", "value": -1 },
+    { "name": "VK_ERROR_DEVICE_LOST", "value": -4 }
+  ],
+  "commands": [
+    {
+      "name": "vkCreateInstance",
+      "returnType": "VkResult",
+      "params": [
+        { "name": "pCreateInfo", "type": "const VkInstanceCreateInfo*" },
+        { "name": "pAllocator", "type": "const VkAllocationCallbacks*" },
+        { "name": "pInstance", "type": "VkInstance*" }
+      ]
+    }
+  ]
+}

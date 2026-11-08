@@ -1,0 +1,41 @@
+{
+  "architecture": "x86_64",
+  "vendor": "Generic",
+  "family": "x86-64-v3 Baseline",
+  "modelName": "Standard x86-64-v3 Compatible Processor",
+  "stepping": 0,
+  "microarchitectureLevel": "x86-64-v3",
+  "features": {
+    "flags": [
+      "cx16", "f16c", "fma", "fsgsbase", "movbe", "popcnt", "rdrand", "avx", "avx2", "bmi1", "bmi2", "lzcnt"
+    ],
+    "vectorExtensions": {
+      "maxVectorWidthBits": 256
+    },
+    "securityExtensions": {
+      "pointerAuth": false,
+      "branchTargetIdentification": false,
+      "memoryTagging": false,
+      "shadowStack": false,
+      "sevSnp": false,
+      "intelTdx": false,
+      "intelSgx": false,
+      "keyLocker": false,
+      "fred": false,
+      "lam": false
+    }
+  },
+  "registers": {
+    "generalPurposeCount": 16,
+    "generalPurposeWidthBits": 64,
+    "vectorRegisterCount": 16,
+    "vectorRegisterWidthBits": 256
+  },
+  "cacheTopology": {
+    "l1iCacheBytes": 32768,
+    "l1dCacheBytes": 32768,
+    "l2CacheBytes": 524288,
+    "l3CacheBytes": 16777216,
+    "cacheLineBytes": 64
+  }
+}

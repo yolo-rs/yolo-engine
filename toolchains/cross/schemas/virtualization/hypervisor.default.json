@@ -1,0 +1,33 @@
+{
+  "hypervisorBackend": "tcg",
+  "accelerator": {
+    "type": "tcg",
+    "hardwareVirtualizationAvailable": false,
+    "tcgConfig": {
+      "mttcg": true,
+      "tbSizeMb": 512,
+      "splitCodeAndData": true
+    }
+  },
+  "vcpuTopology": {
+    "sockets": 1,
+    "cores": 2,
+    "threads": 2,
+    "maxVcpus": 2,
+    "cpuModel": "max"
+  },
+  "memoryConfig": {
+    "sizeMb": 2048,
+    "hugepages": false
+  },
+  "virtioDevices": [
+    {
+      "type": "virtio-net",
+      "transport": "pci"
+    },
+    {
+      "type": "virtio-block",
+      "transport": "pci"
+    }
+  ]
+}

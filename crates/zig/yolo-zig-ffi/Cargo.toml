@@ -1,0 +1,15 @@
+[package]
+name = "yolo-zig-ffi"
+version = "0.1.0"
+edition = "2024"
+description = "Rust bindings for the stable yolo-zig C ABI"
+license = "Apache-2.0"
+repository = "https://github.com/yolo-rs/yolo-zig"
+readme = "README.md"
+keywords = ["zig", "ffi", "c-abi", "cross-compilation"]
+categories = ["api-bindings", "development-tools"]
+build = "build.rs"
+
+[features]
+default = []
+link-yolo-zig = []

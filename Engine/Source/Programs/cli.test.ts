@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   ENGINE_ROOT,
+  executeUe6Pipeline,
   executeUnrealBuildTool,
   loadEngineBuildVersion,
   UNREAL_BUILD_TOOL_MODULES,
@@ -47,7 +48,7 @@ describe("YOLO Engine 6.0 (UE6) — Architecture, UBT, UHT, Shaders & 35 MCP Ski
   });
 
   test("executes UnrealBuildTool (UBT 6.0) module graph and Shipping/Development plans", () => {
-    expect(UNREAL_BUILD_TOOL_MODULES.length).toBe(6);
+    expect(UNREAL_BUILD_TOOL_MODULES.length).toBe(7);
     const shippingPlan = executeUnrealBuildTool({
       target: "YoloEditor",
       platform: "Win64",
@@ -68,5 +69,26 @@ describe("YOLO Engine 6.0 (UE6) — Architecture, UBT, UHT, Shaders & 35 MCP Ski
     expect(domains.has("helix-treesitter")).toBe(true);
     expect(domains.has("physics-animation")).toBe(true);
     expect(domains.has("networking-eos-r2")).toBe(true);
+  });
+
+  test("executes the ordered 5-stage UE6 pipeline (recon -> design -> architect -> build -> replica)", () => {
+    const report = executeUe6Pipeline("all");
+    expect(report.allVerified).toBe(true);
+    expect(report.sequence).toEqual([
+      "recon",
+      "design",
+      "architect",
+      "build",
+      "replica",
+    ]);
+    expect(report.stages.length).toBe(5);
+    expect(report.stages.map((s) => s.stage)).toEqual([
+      "recon",
+      "design",
+      "architect",
+      "build",
+      "replica",
+    ]);
+    expect(report.stages.map((s) => s.orderIndex)).toEqual([1, 2, 3, 4, 5]);
   });
 });

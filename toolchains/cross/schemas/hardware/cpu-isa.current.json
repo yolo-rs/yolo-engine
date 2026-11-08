@@ -1,0 +1,69 @@
+{
+  "architecture": "x86_64",
+  "vendor": "AMD",
+  "family": "Zen 5",
+  "modelName": "AMD EPYC 9655 Turin 96-Core Processor",
+  "stepping": 0,
+  "microarchitectureLevel": "x86-64-v4",
+  "features": {
+    "flags": [
+      "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep", "mtrr", "pge", "mca",
+      "cmov", "pat", "pse36", "clflush", "mmx", "fxsr", "sse", "sse2", "ht", "syscall", "nx", "mmxext",
+      "fxsr_opt", "pdpe1gb", "rdtscp", "lm", "pni", "pclmulqdq", "ssse3", "fma", "cx16", "sse4_1",
+      "sse4_2", "movbe", "popcnt", "aes", "xsave", "avx", "f16c", "rdrand", "fsgsbase", "bmi1", "avx2",
+      "smep", "bmi2", "erms", "invpcid", "rdseed", "adx", "smap", "clflushopt", "clwb", "sha_ni",
+      "avx512f", "avx512dq", "avx512_ifma", "avx512cd", "avx512bw", "avx512vl", "avx512_vbmi",
+      "avx512_vbmi2", "gfni", "vaes", "vpclmulqdq", "avx512_vnni", "avx512_bfloat16", "sev_snp"
+    ],
+    "vectorExtensions": {
+      "maxVectorWidthBits": 512,
+      "avx512Subsets": [
+        "F", "CD", "BW", "DQ", "VL", "IFMA", "VBMI", "VBMI2", "VNNI", "BFLOAT16", "VP2INTERSECT", "VPOPCNTDQ"
+      ],
+      "avx10": {
+        "version": "none",
+        "vectorLength": 512
+      }
+    },
+    "securityExtensions": {
+      "pointerAuth": false,
+      "branchTargetIdentification": false,
+      "memoryTagging": false,
+      "shadowStack": true,
+      "sevSnp": true,
+      "intelTdx": false,
+      "intelSgx": false,
+      "keyLocker": false,
+      "fred": false,
+      "lam": false
+    },
+    "apxExtensions": {
+      "gprCount": 16,
+      "threeOperandCcmp": false,
+      "push2Pop2": false,
+      "jmpabs": false
+    }
+  },
+  "registers": {
+    "generalPurposeCount": 16,
+    "generalPurposeWidthBits": 64,
+    "vectorRegisterCount": 32,
+    "vectorRegisterWidthBits": 512,
+    "predicateRegisterCount": 8
+  },
+  "cacheTopology": {
+    "l1iCacheBytes": 32768,
+    "l1dCacheBytes": 49152,
+    "l2CacheBytes": 1048576,
+    "l3CacheBytes": 33554432,
+    "cacheLineBytes": 64,
+    "dynamicCaching": false
+  },
+  "virtualizationSupport": {
+    "hardwareAssisted": true,
+    "hypervisorType": "AMD-V",
+    "nestedVirtualization": true,
+    "iommu": "AMD-Vi",
+    "confidentialComputing": "SEV-SNP"
+  }
+}

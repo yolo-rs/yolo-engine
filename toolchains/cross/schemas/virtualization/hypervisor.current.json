@@ -1,0 +1,98 @@
+{
+  "hypervisorBackend": "whpx",
+  "accelerator": {
+    "type": "whpx",
+    "hardwareVirtualizationAvailable": true,
+    "nestedPaging": true,
+    "unrestrictedGuest": true,
+    "whpxConfig": {
+      "extendedVmExits": true,
+      "syntheticInterruptController": true
+    }
+  },
+  "vcpuTopology": {
+    "sockets": 1,
+    "cores": 8,
+    "threads": 16,
+    "maxVcpus": 16,
+    "cpuModel": "host",
+    "cpuFeatures": ["invtsc", "avx2", "aes", "vaes", "clflushopt"],
+    "affinityPinning": [
+      { "vcpuId": 0, "hostCpu": 0 },
+      { "vcpuId": 1, "hostCpu": 1 },
+      { "vcpuId": 2, "hostCpu": 2 },
+      { "vcpuId": 3, "hostCpu": 3 }
+    ]
+  },
+  "memoryConfig": {
+    "sizeMb": 16384,
+    "hugepages": true,
+    "hugepageSizeKb": 2048,
+    "ballooning": true,
+    "sharedMemory": false
+  },
+  "virtioDevices": [
+    {
+      "type": "virtio-net",
+      "transport": "pci",
+      "vhostUser": false,
+      "options": {
+        "queues": 4,
+        "mac": "52:54:00:12:34:56"
+      }
+    },
+    {
+      "type": "virtio-block",
+      "transport": "pci",
+      "vhostUser": false,
+      "options": {
+        "iothread": 1,
+        "discard": true
+      }
+    },
+    {
+      "type": "virtio-fs",
+      "transport": "pci",
+      "vhostUser": true,
+      "options": {
+        "tag": "shared_workspace",
+        "cache": "always"
+      }
+    },
+    {
+      "type": "virtio-gpu",
+      "transport": "pci",
+      "vhostUser": false,
+      "options": {
+        "virgl": true,
+        "blob": true
+      }
+    },
+    {
+      "type": "virtio-vsock",
+      "transport": "pci",
+      "vhostUser": false,
+      "options": {
+        "cid": 3
+      }
+    }
+  ],
+  "emulationEngines": {
+    "engine": "box64",
+    "guestArchitecture": "x86_64",
+    "hostArchitecture": "aarch64",
+    "features": {
+      "aheadOfTimeCompilation": false,
+      "dynamicBinaryTranslation": true,
+      "thunkingLibraries": [
+        "libGL.so",
+        "libvulkan.so",
+        "libasound.so",
+        "libX11.so",
+        "libc.so"
+      ],
+      "fastTlb": true,
+      "atomicMemoryEmulation": "native-tsore"
+    }
+  }
+}

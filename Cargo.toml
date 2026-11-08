@@ -6,7 +6,14 @@ members = [
     "Engine/Source/Runtime/yolo-engine-core",
     "Engine/Source/Runtime/yolo-engine-render",
     "Engine/Source/Runtime/yolo-engine-online",
+    "Engine/Source/Runtime/yolo-engine-re-game-porters",
     "Engine/Source/Editor/yolo-engine-editor",
+]
+exclude = [
+    "crates",
+    "toolchains",
+    "vendor",
+    "apps",
 ]
 
 [workspace.package]

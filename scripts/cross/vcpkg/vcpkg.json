@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "yolo-cross-vcpkg-sample",
+  "version": "0.1.0",
+  "description": "Sample vcpkg manifest demonstrating MSVC C/C++ dependency management for yolo-cross.",
+  "homepage": "https://github.com/yolo-rs/yolo-cross",
+  "dependencies": [
+    "fmt"
+  ]
+}

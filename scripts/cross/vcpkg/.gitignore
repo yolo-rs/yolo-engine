@@ -1,0 +1,9 @@
+# vcpkg manifest-mode output and build artifacts (never commit)
+vcpkg_installed/
+buildtrees/
+downloads/
+packages/
+*.exe
+*.obj
+*.ilk
+*.pdb

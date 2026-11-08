@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+    <comment>Khronos Vulkan XML Registry (Sample Definition)</comment>
+    <platforms>
+        <platform name="wayland" comment="Wayland display server"/>
+        <platform name="win32" comment="Microsoft Windows"/>
+        <platform name="xlib" comment="X Window System Xlib"/>
+    </platforms>
+    <types>
+        <type name="VkInstance" category="handle">VK_DEFINE_HANDLE(VkInstance)</type>
+        <type name="VkDevice" category="handle">VK_DEFINE_HANDLE(VkDevice)</type>
+        <type name="VkQueue" category="handle">VK_DEFINE_HANDLE(VkQueue)</type>
+        <type name="VkCommandBuffer" category="handle">VK_DEFINE_HANDLE(VkCommandBuffer)</type>
+        <type name="VkResult" category="enum"/>
+    </types>
+    <enums name="VkResult" type="enum">
+        <enum value="0" name="VK_SUCCESS"/>
+        <enum value="1" name="VK_NOT_READY"/>
+        <enum value="2" name="VK_TIMEOUT"/>
+        <enum value="-1" name="VK_ERROR_OUT_OF_HOST_MEMORY"/>
+        <enum value="-2" name="VK_ERROR_OUT_OF_DEVICE_MEMORY"/>
+        <enum value="-3" name="VK_ERROR_INITIALIZATION_FAILED"/>
+        <enum value="-4" name="VK_ERROR_DEVICE_LOST"/>
+    </enums>
+    <commands>
+        <command>
+            <proto><type>VkResult</type> <name>vkCreateInstance</name></proto>
+            <param>const <type>VkInstanceCreateInfo</type>* <name>pCreateInfo</name></param>
+            <param>const <type>VkAllocationCallbacks</type>* <name>pAllocator</name></param>
+            <param><type>VkInstance</type>* <name>pInstance</name></param>
+        </command>
+    </commands>
+    <feature api="vulkan" name="VK_VERSION_1_3" number="1.3">
+        <require>
+            <command name="vkCreateInstance"/>
+            <type name="VkInstance"/>
+            <type name="VkResult"/>
+        </require>
+    </feature>
+</registry>

@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0-draft",
+  "specUrl": "https://www.w3.org/TR/webgpu/",
+  "features": [
+    "depth-clip-control",
+    "depth32float-stencil8",
+    "texture-compression-bc",
+    "texture-compression-etc2",
+    "texture-compression-astc",
+    "timestamp-query",
+    "indirect-first-instance",
+    "shader-f16",
+    "rg11b10ufloat-renderable",
+    "bgra8unorm-storage",
+    "float32-filterable"
+  ],
+  "limits": {
+    "maxTextureDimension1D": 8192,
+    "maxTextureDimension2D": 8192,
+    "maxTextureDimension3D": 2048,
+    "maxTextureArrayLayers": 256,
+    "maxBindGroups": 4,
+    "maxBindGroupsPlusVertexBuffers": 24,
+    "maxBindingsPerBindGroup": 1000,
+    "maxDynamicUniformBuffersPerPipelineLayout": 8,
+    "maxDynamicStorageBuffersPerPipelineLayout": 4,
+    "maxSampledTexturesPerShaderStage": 16,
+    "maxSamplersPerShaderStage": 16,
+    "maxStorageBuffersPerShaderStage": 8,
+    "maxStorageTexturesPerShaderStage": 4,
+    "maxUniformBuffersPerShaderStage": 12,
+    "maxUniformBufferBindingSize": 65536,
+    "maxStorageBufferBindingSize": 134217728,
+    "minUniformBufferOffsetAlignment": 256,
+    "minStorageBufferOffsetAlignment": 256,
+    "maxVertexBuffers": 8,
+    "maxBufferSize": 268435456,
+    "maxVertexAttributes": 16,
+    "maxVertexBufferArrayStride": 2048,
+    "maxInterStageShaderVariables": 16,
+    "maxColorAttachments": 8,
+    "maxComputeWorkgroupStorageSize": 16384,
+    "maxComputeInvocationsPerWorkgroup": 256,
+    "maxComputeWorkgroupSizeX": 256,
+    "maxComputeWorkgroupSizeY": 256,
+    "maxComputeWorkgroupSizeZ": 64,
+    "maxComputeWorkgroupsPerDimension": 65535
+  },
+  "interfaces": [
+    {
+      "name": "GPUAdapter",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "features",
+          "type": "GPUSupportedFeatures",
+          "readonly": true
+        },
+        {
+          "name": "limits",
+          "type": "GPUSupportedLimits",
+          "readonly": true
+        },
+        {
+          "name": "isFallbackAdapter",
+          "type": "boolean",
+          "readonly": true
+        }
+      ]
+    },
+    {
+      "name": "GPUDevice",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "features",
+          "type": "GPUSupportedFeatures",
+          "readonly": true
+        },
+        {
+          "name": "limits",
+          "type": "GPUSupportedLimits",
+          "readonly": true
+        },
+        {
+          "name": "queue",
+          "type": "GPUQueue",
+          "readonly": true
+        }
+      ]
+    }
+  ],
+  "_fetchedMeta": {
+    "url": "https://raw.githubusercontent.com/gpuweb/gpuweb/main/spec/index.bs",
+    "fetchedAt": "2026-11-04T11:44:12.683Z",
+    "bytes": 849278
+  }
+}

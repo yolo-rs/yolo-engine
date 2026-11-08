@@ -166,6 +166,82 @@ impl UWorld {
     }
 }
 
+/// Cross-Compilation Target Triple for Universal UE6 Shipping Binaries (`yolo:cross`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum ECrossTargetTriple {
+    X86_64PcWindowsMsvc,
+    X86_64UnknownLinuxGnu,
+    X86_64UnknownLinuxMusl,
+    Aarch64AppleDarwin,
+    Aarch64LinuxAndroid,
+    Wasm32UnknownUnknown,
+}
+
+impl ECrossTargetTriple {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::X86_64PcWindowsMsvc => "x86_64-pc-windows-msvc",
+            Self::X86_64UnknownLinuxGnu => "x86_64-unknown-linux-gnu",
+            Self::X86_64UnknownLinuxMusl => "x86_64-unknown-linux-musl",
+            Self::Aarch64AppleDarwin => "aarch64-apple-darwin",
+            Self::Aarch64LinuxAndroid => "aarch64-linux-android",
+            Self::Wasm32UnknownUnknown => "wasm32-unknown-unknown",
+        }
+    }
+
+    pub fn recommended_driver(&self) -> &'static str {
+        match self {
+            Self::X86_64PcWindowsMsvc => "cargo-xwin",
+            Self::X86_64UnknownLinuxGnu
+            | Self::X86_64UnknownLinuxMusl
+            | Self::Aarch64AppleDarwin
+            | Self::Aarch64LinuxAndroid => "cargo-zigbuild",
+            Self::Wasm32UnknownUnknown => "cargo-build-wasm",
+        }
+    }
+}
+
+/// Cross-Compilation Toolchain Orchestrator Job (`cargo-xwin`, `cargo-zigbuild`, `zig cc`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FCrossCompileJob {
+    pub crate_or_binary: String,
+    pub target_triple: ECrossTargetTriple,
+    pub release_mode: bool,
+    pub zig_cc_linker: bool,
+    pub sccache_enabled: bool,
+}
+
+impl FCrossCompileJob {
+    pub fn new(crate_or_binary: impl Into<String>, target_triple: ECrossTargetTriple) -> Self {
+        Self {
+            crate_or_binary: crate_or_binary.into(),
+            target_triple,
+            release_mode: true,
+            zig_cc_linker: !matches!(
+                target_triple,
+                ECrossTargetTriple::X86_64PcWindowsMsvc | ECrossTargetTriple::Wasm32UnknownUnknown
+            ),
+            sccache_enabled: true,
+        }
+    }
+
+    pub fn build_command_line(&self) -> String {
+        let subcommand = match self.target_triple {
+            ECrossTargetTriple::X86_64PcWindowsMsvc => "cargo xwin build",
+            ECrossTargetTriple::Wasm32UnknownUnknown => "cargo build",
+            _ => "cargo zigbuild",
+        };
+        let profile = if self.release_mode { " --release" } else { "" };
+        format!(
+            "{} -p {} --target {}{}",
+            subcommand,
+            self.crate_or_binary,
+            self.target_triple.as_str(),
+            profile
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -205,5 +281,23 @@ mod tests {
         assert_eq!(id, 1);
         assert_eq!(world.actors.len(), 1);
         assert!(world.class_registry.contains_key("AStaticMeshActor"));
+    }
+
+    #[test]
+    fn orchestrates_cross_compilation_jobs_across_all_6_targets() {
+        let win_job = FCrossCompileJob::new("yolo-editor", ECrossTargetTriple::X86_64PcWindowsMsvc);
+        assert_eq!(
+            win_job.build_command_line(),
+            "cargo xwin build -p yolo-editor --target x86_64-pc-windows-msvc --release"
+        );
+        assert!(!win_job.zig_cc_linker);
+
+        let linux_job =
+            FCrossCompileJob::new("yolo-editor", ECrossTargetTriple::X86_64UnknownLinuxMusl);
+        assert_eq!(
+            linux_job.build_command_line(),
+            "cargo zigbuild -p yolo-editor --target x86_64-unknown-linux-musl --release"
+        );
+        assert!(linux_job.zig_cc_linker);
     }
 }
