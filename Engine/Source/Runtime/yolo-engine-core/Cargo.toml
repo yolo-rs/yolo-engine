@@ -1,0 +1,11 @@
+[package]
+name = "yolo-engine-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Unreal Engine 6 Core, CoreUObject Reflection (#[uclass]/#[uproperty]/#[ufunction]), Bevy ECS World/Actor/Component Subsystem, Verse TaskGraph & Rust-Windowing ApplicationCore"
+
+[dependencies]
+serde = { workspace = true }

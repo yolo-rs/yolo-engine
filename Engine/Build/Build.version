@@ -1,0 +1,22 @@
+{
+  "FileVersion": 3,
+  "MajorVersion": 6,
+  "MinorVersion": 0,
+  "PatchVersion": 0,
+  "Changelist": 20261108,
+  "CompatibleChangelist": 20261100,
+  "IsLicenseeVersion": 0,
+  "IsPromotedBuild": 1,
+  "BranchName": "++UE6+Release-6.0-YoloEngine",
+  "BuildVersion": "++UE6+Release-6.0-CL-20261108",
+  "EngineAssociation": "6.0.0-YOLO",
+  "Architecture": {
+    "CoreECS": "bevyengine/bevy -> yolo-rs/bevy (Bevy ECS 0.20 +Verse TaskGraph)",
+    "UnrealEdShell": "zed-industries/zed -> yolo-rs/zed (GPUI 0.8 120FPS Dockable Editor)",
+    "CreativeDCCSuite": "storytold/artcraft -> yolo-rs/artcraft (3D Sculpt, Voxel, Rigging, Retopo, PBR Paint)",
+    "ModalCodeEditor": "helix-editor/helix -> yolo-rs/helix (Modal Rope Buffer + Multi-Cursor)",
+    "IncrementalAST": "tree-sitter/tree-sitter -> yolo-rs/tree-sitter (v0.27.2 30 Grammars + Graphify)",
+    "WindowingApplicationCore": "rust-windowing/winit + raw-window-handle + glutin + softbuffer -> yolo-rs/*",
+    "RHIAndShaderCompiler": "gfx-rs/wgpu (v30.0.1) + gfx-rs/naga (v30.0.0) -> yolo-rs/wgpu & yolo-rs/naga"
+  }
+}

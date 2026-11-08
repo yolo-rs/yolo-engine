@@ -1,18 +1,22 @@
 {
   "name": "@yolo-rs/yolo-engine",
-  "version": "1.0.0",
-  "description": "YOLO Engine: Unreal Engine Architecture Reimagined on Rust 2024 & Bun 1.4.4+ (Bevy Fork, WGPU 30, Epic Online Services, EAC, Steamworks, Blender 3D, Cloudflare R2 60GB CPK, Sunshine/Moonlight/Gamescope)",
+  "version": "6.0.0",
+  "description": "YOLO Engine 6.0 (UE6): Complete Unreal Engine 6 Replacement on Rust 2024 & Bun 1.4.4+ (Bevy ECS + Zed GPUI + Storytold Artcraft + Helix + Tree-Sitter + Rust-Windowing + Gfx-rs WGPU/Naga)",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.4.4",
+  "packageManager": "bun@1.4.4-canary.1",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "dev": "cargo run --bin yolo-editor",
     "build:engine": "cargo build --release",
-    "build:aot": "bun build --compile --aot --outfile dist/bin/yolo-engine Engine/Source/Programs/cli.ts",
-    "test": "cargo test && bun test",
+    "build:aot": "bun build --compile --outfile Engine/Binaries/Win64/YoloBuildTool.exe Engine/Source/Programs/cli.ts",
+    "ubt": "bun Engine/Source/Programs/cli.ts ubt",
+    "uht": "bun Engine/Source/Programs/cli.ts uht",
+    "mcp": "bun Engine/Source/Programs/cli.ts mcp",
+    "gitdeps": "bun Engine/Source/Programs/cli.ts gitdeps",
+    "test": "cargo test --workspace && bun test ./Engine/Source/Programs/cli.test.ts",
     "cloud:deploy": "bun deploy/streaming/cluster-orchestrator.ts",
     "r2:cpk:serve": "bun packages/yolo-cpk-stream/src/serve.ts"
   }

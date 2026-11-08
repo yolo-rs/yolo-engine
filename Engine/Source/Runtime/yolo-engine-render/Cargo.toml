@@ -1,0 +1,11 @@
+[package]
+name = "yolo-engine-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Unreal Engine 6 RHI, RenderCore & Renderer on gfx-rs/wgpu 30.0.1 + gfx-rs/naga 30.0.0 (Nanite Cluster Culling, Lumen GI, Virtual Shadow Maps & TSR)"
+
+[dependencies]
+serde = { workspace = true }

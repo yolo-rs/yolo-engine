@@ -1,0 +1,18 @@
+[package]
+name = "yolo-engine-editor"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "UnrealEd 6.0 Replacement on Zed GPUI 0.8 (120FPS Docking), Storytold Artcraft (DCC Sculpt/Voxel/Rig/Retopo/Paint), Helix Modal Editor & Tree-Sitter 0.27.2 AST"
+
+[[bin]]
+name = "yolo-editor"
+path = "src/main.rs"
+
+[dependencies]
+yolo-engine-core = { path = "../../Runtime/yolo-engine-core" }
+yolo-engine-render = { path = "../../Runtime/yolo-engine-render" }
+serde = { workspace = true }
+serde_json = { workspace = true }

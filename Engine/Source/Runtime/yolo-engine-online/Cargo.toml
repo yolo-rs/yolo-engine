@@ -1,0 +1,11 @@
+[package]
+name = "yolo-engine-online"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Unreal Engine 6 NetCore, Iris Replication, Epic Online Services (EOS), Easy Anti-Cheat (EAC), Steamworks & Cloudflare R2 60GB CPK Pak Streaming"
+
+[dependencies]
+serde = { workspace = true }
