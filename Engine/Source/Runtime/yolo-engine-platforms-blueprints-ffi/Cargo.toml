@@ -11,5 +11,4 @@ description = "Unreal Engine 6 Complete 11-Platform Console/Mobile/PC/Web SDK Ma
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-yolo-engine-core = { path = "../yolo-engine-core" }
 serde = { workspace = true }

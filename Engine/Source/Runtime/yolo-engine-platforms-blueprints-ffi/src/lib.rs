@@ -26,6 +26,8 @@
 //!    - Protocols & Services: `UnrealTrace` (Insights telemetry), `ZenServer` / `DerivedDataCache` (`DDC`), `MultiUserEditing` (`ConcertSync` CRDT), `LiveLink` (Mocap/Camera/Blender), `PixelStreaming2` (WebRTC AV1), `IrisReplication`
 //! 4. **Full Unreal Engine 5/6 Blueprint VM (`Kismet` Visual Scripting -> Rust AST / Bevy ECS / WGSL) & C++20/Bevy/Bun Zero-Copy C-ABI FFI**.
 
+#![allow(non_camel_case_types, non_snake_case)]
+
 use core::ffi::{c_char, CStr};
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
