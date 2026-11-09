@@ -1,0 +1,42 @@
+diff --git a/src/ui/terminal/terminal.zig b/src/ui/terminal/terminal.zig
+index c6964731..d56ded99 100644
+--- a/src/ui/terminal/terminal.zig
++++ b/src/ui/terminal/terminal.zig
+@@ -1,6 +1,19 @@
+ const std = @import("std");
++const builtin = @import("builtin");
+ const types = @import("../../core/shared/types.zig");
+ 
++const WindowsCoord = extern struct { x: i16, y: i16 };
++const WindowsSmallRect = extern struct { left: i16, top: i16, right: i16, bottom: i16 };
++const WindowsConsoleScreenBufferInfo = extern struct {
++    size: WindowsCoord,
++    cursor_position: WindowsCoord,
++    attributes: u16,
++    window: WindowsSmallRect,
++    maximum_window_size: WindowsCoord,
++};
++extern "kernel32" fn GetConsoleScreenBufferInfo(handle: std.os.windows.HANDLE, info: *WindowsConsoleScreenBufferInfo) callconv(.winapi) std.os.windows.BOOL;
++extern "kernel32" fn GetStdHandle(kind: std.os.windows.DWORD) callconv(.winapi) std.os.windows.HANDLE;
++
+ pub const interactive_mode_enable_sequence = "\x1b[>4;2m\x1b[>1u\x1b[?2004h\x1b[?7l";
+ const tmux_interactive_mode_enable_sequence = "\x1b[>4;2m\x1b[?2004h\x1b[?7l";
+ pub const theme_notification_enable_sequence = "\x1b[?2031h";
+@@ -33,7 +46,16 @@ pub fn interactiveModeEnableSequence(tmux: ?[]const u8) []const u8 {
+         tmux_interactive_mode_enable_sequence;
+ }
+ 
+-pub fn queryLayout(fd: std.posix.fd_t, footer_rows: u16) !types.Layout {
++pub fn queryLayout(fd: anytype, footer_rows: u16) !types.Layout {
++    if (builtin.os.tag == .windows) {
++        var info: WindowsConsoleScreenBufferInfo = undefined;
++        const handle = GetStdHandle(0xfffffff5); // STD_OUTPUT_HANDLE (-11)
++        if (handle == std.os.windows.INVALID_HANDLE_VALUE or GetConsoleScreenBufferInfo(handle, &info) == .FALSE) return error.UnableToReadTerminalSize;
++        const rows: u16 = @intCast(@as(i32, info.window.bottom) - info.window.top + 1);
++        const cols: u16 = @intCast(@as(i32, info.window.right) - info.window.left + 1);
++        if (rows == 0 or cols == 0) return error.UnableToReadTerminalSize;
++        return layoutFromSize(rows, cols, footer_rows);
++    }
+     var ws: std.posix.winsize = .{ .row = 0, .col = 0, .xpixel = 0, .ypixel = 0 };
+ 
+     const req: c_int = @intCast(std.c.T.IOCGWINSZ);

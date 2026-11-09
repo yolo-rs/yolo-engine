@@ -1,0 +1,21 @@
+# W3C WebGPU Standard
+
+The WebGPU specification exposes modern graphics and compute capabilities of underlying hardware GPUs (via Vulkan, Metal, and Direct3D 12) directly to the web and native runtimes.
+
+## Key Capabilities
+
+- **Pipeline States**: Explicit separation between render and compute pipelines (`GPURenderPipeline`, `GPUComputePipeline`).
+- **Memory Safety**: Strict validation on bind group layouts, buffer offsets, and texture dimensions.
+- **Shader Language**: WGSL (WebGPU Shading Language), engineered for portable SPIR-V / MSL / HLSL code generation.
+
+## Schema Definition
+
+Schemas for WebGPU limits, features, and descriptor interfaces are indexed in `schemas/webgpu/webgpu.schema.json`.
+
+```typescript
+import { StandardsLoader } from "yolo-standards";
+
+const loader = new StandardsLoader();
+const webgpu = await loader.loadWebGPU();
+console.log(`WebGPU limits count: ${Object.keys(webgpu.limits).length}`);
+```

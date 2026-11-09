@@ -1,0 +1,12 @@
+{
+  "dateUtc": "2026-11-04T21:17:15Z",
+  "scriptSha256": "30d6612c519146fd06b8c1ac54cdf0530fc2860baf7c376330c13e128ff8e9f6",
+  "manifestSha256": "4f26e3c22ac0c909e670f18a595646fa18a8d9b7f45a11c233fbf906c6aaf4f2",
+  "bunSha256": "f424e283c15b8b19f59f054abcba462afab46fdcce44721b0f1167eaa67f2864",
+  "webkitCommit": "4d45755fed4aeef19e95beb90d3d0c884a2812bd",
+  "cases": [
+    {"headerSha256": "8f185f3771075b2dd0c41c13f4c12ff4995566c1f7240a2881d810ced72679ae", "matches": true, "exitCode": 0},
+    {"headerSha256": "511be4dbf2ea5cbae82a115ea75b0be06efb284937ababd36275a63fa6909e62", "matches": false, "exitCode": 1}
+  ],
+  "scope": "Checks one header fingerprint for the pinned Windows WebKit build, not full toolchain or binary ABI compatibility."
+}

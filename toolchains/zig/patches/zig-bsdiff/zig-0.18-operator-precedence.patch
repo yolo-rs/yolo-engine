@@ -1,0 +1,25 @@
+diff --git a/bspatch.zig b/bspatch.zig
+index e1d4af7..cd4647f 100644
+--- a/bspatch.zig
++++ b/bspatch.zig
+@@ -272,13 +272,13 @@ fn offtin(buf: []const u8) i64 {
+     var y: i64 = 0;
+ 
+     y = @as(i64, (@intCast(buf[7] & 0x7f)));
+-    y = y << 8 | @as(i64, (@intCast(buf[6])));
+-    y = y << 8 | @as(i64, (@intCast(buf[5])));
+-    y = y << 8 | @as(i64, (@intCast(buf[4])));
+-    y = y << 8 | @as(i64, (@intCast(buf[3])));
+-    y = y << 8 | @as(i64, (@intCast(buf[2])));
+-    y = y << 8 | @as(i64, (@intCast(buf[1])));
+-    y = y << 8 | @as(i64, (@intCast(buf[0])));
++    y = (y << 8) | @as(i64, (@intCast(buf[6])));
++    y = (y << 8) | @as(i64, (@intCast(buf[5])));
++    y = (y << 8) | @as(i64, (@intCast(buf[4])));
++    y = (y << 8) | @as(i64, (@intCast(buf[3])));
++    y = (y << 8) | @as(i64, (@intCast(buf[2])));
++    y = (y << 8) | @as(i64, (@intCast(buf[1])));
++    y = (y << 8) | @as(i64, (@intCast(buf[0])));
+ 
+     if ((buf[7] & 0x80) != 0) {
+         y = -y;

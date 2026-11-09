@@ -1,0 +1,106 @@
+# yolo-zig architecture
+
+`yolo-zig` is a standalone Zig monorepo at `C:\src\yolo-zig`. It supplies native OS-facing utilities and C ABI modules to the larger AI OS; it is not a browser-only package and is not nested in YOLO-Web.
+
+## Source layout
+
+```text
+apps/
+  yolo-zig/             Zig diagnostics and developer command
+libs/
+  yolo-zig-abi/          versioned C ABI shared library
+include/
+  yolo_zig.h             public C/C++ ABI header
+docs/
+  ARCHITECTURE.mdx       language ownership and upstream selection
+build.zig                unified native build graph
+build.zig.zon            dependency hashes and compiler selection
+package.json             Bun-only workspace commands
+tools/yolo-zig.ts         Bun fork inventory/orchestration CLI
+forks/                   complete, pinned upstream Git submodules
+```
+
+The `yolo-zig` app reports its compiled target, while the ABI library reports the same target and exports an explicit ABI version. The root build also compiles the pinned delta engine into `bsdiff` and `bspatch`; Bun dispatches to those tools and to selected upstream `fx`, Lightpanda, and Electrobun commands. This is an initial usable set of native/build/update and browser/agent entry points; further OS capabilities should be added as concrete services with clear ownership and platform support.
+
+## Ownership across the AI OS
+
+| Layer | Owns | Use Zig when |
+| --- | --- | --- |
+| Rust | Product orchestration (`yolo`), agent policies, safe service APIs, async services, storage and protocol glue | A concrete Rust boundary benefits from a small C ABI utility or low-level platform code |
+| Bun | Developer workflows, MCP, scripts, generated project tooling | Spawning native build/package tools; FFI only after a performance case and with carefully bounded memory ownership |
+| Zig | Cross-platform native support, C ABI libraries, system integration, small release/package tools | Platform SDK access, C library reuse, cross compilation, or a native hot path measured against the Rust implementation |
+| Chromium C++ | Browser process, Blink, Views, WebUI, Skia and the upstream browser build | Native browser rendering and window/UI behavior, following the pinned Chromium GN/DEPS graph |
+| Electron | Its Chromium/Node distribution and ordered upstream patch workflow | Compare Chromium roll, patch, and packaging workflows; do not introduce Electron's runtime into the AI OS by default |
+
+The AI OS must expose OS actions through explicit capability interfaces with least privilege. Keep permission decisions, durable policy, and user-visible approvals in Rust services. Zig platform modules receive narrow inputs and return typed status/results; they do not interpret model output as commands or expose arbitrary host calls to a renderer. Use IPC for long-lived or privileged services. Reserve FFI for in-process calls whose lifetime, allocator ownership, thread behavior, and ABI version are explicit.
+
+### AI-generated OS path
+
+AI-generated work should produce declarative app, workflow, tool, and capability manifests. Bun can generate project code and invoke builds; Rust validates schemas, applies policy/approval decisions, and owns the agent/service lifecycle; Zig builds the target-specific native capability libraries; Chromium C++ owns the browser UI/runtime. A generated package must state its required capabilities and target ABI, pass validation and native build checks, and be signed before installation. Do not compile model output directly into privileged native code or load unsigned native plugins into a running agent.
+
+## FFI contract
+
+`include/yolo_zig.h` is the public C ABI. Exported names are prefixed `yolo_zig_`; the library owns any memory it allocates and must provide matching release functions before returning allocated memory. Prefer caller-provided buffers or immutable static strings. Never pass Zig slices, error unions, allocators, or native-layout structs across the ABI. Add `repr(C)` on any corresponding Rust struct and declare Rust foreign functions with explicit `extern "C"`.
+
+Bun's `bun:ffi` can load C ABI symbols from Zig on Windows and Linux, but Bun currently labels FFI experimental. Keep it out of security-sensitive and long-lived production paths until that support is accepted for the deployed Bun release. Use `Bun.spawn` with a bounded protocol for independent native services. Avoid high-frequency FFI calls into JavaScript; batch work across the boundary.
+
+## Build and cross compilation
+
+The root `build.zig` builds the CLI, shared library, and upstream `bsdiff`/`bspatch` executables for the selected target and optimization mode. The delta tools compile from pinned upstream Zig sources plus Zstandard and libsais C sources. Zig is useful as a C/C++ cross compiler (`zig cc`, `zig c++`) and for producing native components in one declarative build graph. Target support still needs a native run lane and explicit system SDK/library checks; compiling a foreign artifact does not validate platform behavior.
+
+The initial verified matrix is x86_64 Windows GNU and x86_64 Linux GNU. Chromium continues to use GN, Ninja/autoninja, depot_tools, and its own pinned toolchain. Do not use Zig to rebuild Chromium dependencies or replace the Visual Studio/Windows SDK inputs that its GN configuration requires.
+
+## Windows and Linux tool policy
+
+The Bun dispatcher uses argv-array `Bun.spawn`, inherited process streams, `Bun.which`, and `Bun.file().exists()`; it does not build command strings or rely on Unix shell quoting. Prefer Bun filesystem APIs and Bun Shell built-ins for workspace operations. Compile/link C and C++ through Zig's root build graph so `ar`, `ld`, `nm`, `tar`, `curl`, `mkdir`, `cp`, and `rm` are not host-tool requirements. Bun's official [process](https://github.com/oven-sh/bun/blob/main/docs/runtime/child-process.mdx), [file-exists](https://github.com/oven-sh/bun/blob/main/docs/guides/read-file/exists.mdx), [executable lookup](https://github.com/oven-sh/bun/blob/main/docs/runtime/utils.mdx), and [Shell](https://github.com/oven-sh/bun/blob/main/docs/runtime/shell.mdx) docs define those boundaries.
+
+The POSIX policy follows the existing [Bun OS Windows userland](../../bun-os/docs/WINDOWS-USERLAND.md) and [POSIX on Windows decision table](../../bun-os/docs/POSIX-ON-WINDOWS.md): native Windows tools come from maintained Rust/MSVC builds, while Linux-only tools run under WSL. The relevant source from `yolo-standards` is integrated into [`packages/yolo-posix-bun`](../packages/yolo-posix-bun/NOTICE.md), and the CLI uses its GNU option parser. It supplies portable constants and semantics, not operating-system calls or a second coreutils/linker implementation. For filesystem and process work use Bun APIs; for native compilation use Zig Build. `doctor` uses `Bun.which` to show discovered host tools and the supported build/run routes; `buncc` and `cargo-xwin` are optional integrations, not requirements for the Zig graph.
+
+On Windows, `inspect windows` loads the Bun OS `@aphrody/windows` plugin and `@aphrody/winclean` read-only host calls from the configured Bun OS checkout (`YOLO_BUN_OS_ROOT`, defaulting to a sibling `bun-os`). It reports OS/build, memory, drives, WSL service state, and counts of relevant development processes. The Windows plugin owns Win32 inspection; WinClean exposes the same bounded local inventory interface used by its kernel tools. This command only reads system state.
+
+The Cargo lanes pair the target Zig ABI with Buncc-managed Cargo: Windows MSVC uses Buncc's Visual Studio environment, Windows GNU uses `cargo-zigbuild`, Linux glibc 2.35 uses `cargo-zigbuild` on Linux/macOS, and Linux/macOS to Windows MSVC uses `cargo-xwin` plus its xwin sysroot. The latter requires explicit `--accept-ms-license` because it downloads Microsoft CRT/SDK files. Buncc owns environment preparation and resource-aware Cargo execution; Zig Build owns the Zig/C graph and its cross targets.
+
+Fork support is capability-gated by upstream reality:
+
+- `bsdiff`/`bspatch` compile natively for Windows MSVC, Windows GNU, and Linux GNU from the pinned Zig/C source trees. Release builds use `-Dcpu=baseline`; target artifacts are built on native runners as well as cross-compiled.
+- `fx` currently uses POSIX TTY, process, signal, and descriptor APIs throughout its source, so it is built as Linux x86_64 from Windows and launched through WSL. The native Windows build failed on Zig 0.17 with Winsock, CRT/SEH, TTY, and file-descriptor type errors; no native Windows claim is made until a Win32 backend is implemented and qualified.
+- Lightpanda is Linux/macOS upstream and runs on Windows through WSL. The dispatcher relies on Microsoft's documented WSL current-directory interoperability, so it passes the repository-relative binary path without invoking `wslpath`.
+- Electrobun app builds remain host-native through Hutch. Use native Windows/Linux CI runners rather than cross-compiling its application packages.
+
+`bun run zig:build` applies the checked-in downstream Zig 0.18 precedence patch to the pinned `zig-bsdiff` checkout, then builds the monorepo graph. This makes the patch reproducible after `git submodule update --init --recursive`; the upstream source itself remains intact apart from that explicit local patch.
+
+Toolchain selection is split by lane:
+
+- `minimum_zig_version` documents the compatibility floor for downstream users.
+- `.zig_version` selects the exact master build for `anyzig` in this repo.
+- The stable-release lane should explicitly run the newest tagged Zig release, currently 0.17.1, in CI.
+- The nightly lane should follow the pinned 0.18.0 development build until a reviewed update changes the pin.
+- Pair ZLS with the selected compiler. ZLS 0.17.0 restores much of the Zig 0.17 build integration but still documents regressions; do not treat language-server diagnostics as the build authority.
+
+The project currently has no external Zig package dependencies. When one is added, pin a commit/archive and Zig package hash in `build.zig.zon`, preserve its license, and verify Windows/Linux support. Do not add a package solely because it appears in an awesome list.
+
+## Upstream project selection
+
+Full source trees for the selected projects are pinned as Git submodules under [`forks/`](../forks/README.mdx). This retains their complete upstream history and build systems without pretending they share one compiler version. The root build remains the yolo-zig ABI; each upstream project is built with its own native toolchain. Update submodule gitlinks only after reviewing upstream commits, licenses, target coverage, and dependency changes.
+
+| Project | Decision | Why |
+| --- | --- | --- |
+| [Lightpanda](https://github.com/lightpanda-io/browser) | Complete source at `forks/lightpanda-browser`; optional Linux-first headless/CDP engine | AGPL-3.0-only; upstream currently directs Windows users to WSL. It has no graphical layout/rendering engine and is not the Windows Chromium backend. |
+| [Vercel Native SDK](https://github.com/vercel-labs/native) | Complete source at `forks/vercel-native`; experimental native/CEF packaging reference | Apache-2.0. Keep its TypeScript/Node tooling and alternate UI isolated; it does not replace Chromium Views/WebUI. |
+| [Vercel fx](https://github.com/vercel-labs/fx) | Complete source at `forks/vercel-fx`; AI agent/terminal source to audit | Apache-2.0. Confirm Windows/Linux host support and Zig version before product integration. |
+| [Electrobun](https://github.com/blackboardsh/electrobun) | Complete source at `forks/electrobun`; Bun + Zig + C/C++ desktop bridge and updater reference | MIT. Native Windows/Linux host builds are supported, but it does not cross-compile; its Zig UI remains experimental/macOS-only. Preserve Chromium Views for the product UI. |
+| [Blackboard Co(lab)](https://github.com/blackboardsh/colab) | UI/workflow research reference only | An early developer preview combines a browser, local code editor, terminal and AI. Its README says only macOS ARM is currently shipped and it lists Node alongside Bun, so it is not a cross-platform implementation base. |
+| [Blackboard zig-bsdiff](https://github.com/blackboardsh/zig-bsdiff) | Complete source at `forks/zig-bsdiff`; candidate for measured update integration | MIT with its upstream Zstandard submodule. Before integration, benchmark update size/apply time and validate the signature/integrity chain on Windows and Linux. |
+| [Blackboard zig-zstd](https://github.com/blackboardsh/zig-zstd) | Evaluate only with the updater | It could package delta streams, but current Rust and browser ecosystems already have compression code. Avoid shipping duplicate compression implementations without a measurable advantage. |
+| [Blackboard zig-asar](https://github.com/blackboardsh/zig-asar) | Keep as an Electron-specific reference | Use only if a product actually consumes ASAR; it does not replace Chromium profiles or app package services. |
+| [libxev](https://github.com/mitchellh/libxev) | Do not add to the initial dependency graph | It is a useful C ABI event loop, but Rust/Tokio and Bun already own async scheduling. Its README says Windows support is planned and it does not implement Zig 0.16+ `std.Io`; re-evaluate after a Windows release and a service that cannot stay Rust-owned. |
+| [anyzig](https://github.com/marler8997/anyzig) | Use to resolve the per-project Zig canary | Its current release can select compilers from project manifests while keeping versions side by side. The current stable compiler remains an explicit CI lane. |
+| [ZigCC Awesome Zig](https://github.com/zigcc/awesome-zig) | Discovery catalog, not a dependency policy | The list warns that projects require different Zig versions. Validate each candidate's current source, license, compiler pin, target support, and maintenance before use. |
+
+## Next real slices
+
+1. Turn the existing Rust, Bun, and C++ ABI examples into target-matrix integration checks; document ownership and platform library loading.
+2. Add Windows MSVC and Linux x86_64 native CI runners beside the already cross-compiled Windows GNU/Linux GNU artifacts.
+3. Benchmark zig-bsdiff against the actual browser and AI OS update bundles; integrate only if update size, verification, and apply-time improve on both hosts.
+4. Select native OS service modules by feature need (device, package/update, OS integration, or boot/runtime support), not by collecting libraries.
+5. Keep privileged service boundaries and AI action policy in Rust; add Zig only where it reduces dependencies or improves measured native integration.

@@ -1,0 +1,19 @@
+# Wayland Protocol Specification
+
+Wayland is a communication protocol between a display server (compositor) and its clients, designed to replace the X Window System.
+
+## Architecture
+
+- **Protocol Core**: Asynchronous object-oriented IPC using UNIX domain sockets.
+- **Interfaces**: Core objects such as `wl_display`, `wl_compositor`, `wl_surface`, and `wl_seat`.
+- **Wire Format**: 32-bit aligned messages containing object IDs, opcode, length, and typed arguments (`new_id`, `int`, `uint`, `string`, `fd`).
+
+## Usage
+
+```typescript
+import { StandardsLoader } from "yolo-standards";
+
+const loader = new StandardsLoader();
+const wayland = await loader.loadWayland();
+console.log(`Wayland interfaces: ${wayland.interfaces.map(i => i.name).join(", ")}`);
+```

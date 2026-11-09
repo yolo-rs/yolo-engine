@@ -1,0 +1,13 @@
+feature,area,priority,original,clone,notes
+Hero Manifesto Positioning,brand,must,yes,yes,"Calm human-first emotional hook, no raw library dump"
+Instant Browser Launch,runtime,must,no,yes,"Aphrody's killer advantage: WebGPU stream in 1 click"
+Live Aesthetic Theme Switcher,ui,must,yes,yes,"Instant theme morphing with 5 curated moods"
+Built-in Ambient Soundscape / Music Capsule,media,should,yes,yes,"Physical product feel with audio player capsule"
+Agentic AI Companion (Gemini / Magic Pointer),ai,must,yes,yes,"Proactive screen-aware AI assistant without CLI friction"
+Native Mobile Apps Compatibility,subsystem,must,yes,yes,"Run Android apps side-by-side with desktop apps"
+Legacy / Windows Software Compatibility,subsystem,should,yes,yes,"'Il fait même tourner Windows' consumer framing"
+Hardware Freedom (Runs on Any PC/Mac/Browser),hardware,must,yes,yes,"Works on modest hardware and high-end silicon"
+Playful Virtual Pet Companion (Aphrody),delight,should,yes,yes,"Interactive desktop pet companion and widgets"
+Zero-Maintenance Cloud Continuity,cloud,should,yes,yes,"Instant sync with Google account and cloud storage"
+Privacy & Local-First Freedom,security,must,yes,yes,"No trackers, no telemetry, your computer belongs to you"
+Clean-Room Typography & Visual Polish,design,must,yes,yes,"Google Sans / Plus Jakarta Sans typography and M3 palette"

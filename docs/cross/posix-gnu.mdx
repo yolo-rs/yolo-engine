@@ -1,0 +1,330 @@
+# UNIX, POSIX.1-2024 & GNU Compatibility Specification
+
+The **IEEE Std 1003.1-2024** (The Open Group Base Specifications Issue 8 / POSIX.1-2024) is the authoritative standard defining portable operating system interfaces for UNIX-like computing environments. Concurrently, **GNU Standards** (glibc extensions, GNU Coreutils, Gnulib) and the **modern Rust systems ecosystem** (`libc`, `nix`, `rustix`, `uutils-coreutils`) establish the baseline for contemporary systems engineering.
+
+---
+
+## 1. POSIX.1-2024 (Issue 8) Architecture Overview
+
+POSIX.1-2024 represents the first major standard update since POSIX.1-2008 (Issue 7), standardizing over a decade of systems programming advancements.
+
+### Key Architectural Evolution in Issue 8
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                          User Application                              │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+         ┌───────────────────────────┴───────────────────────────┐
+         │                                                       │
+         ▼                                                       ▼
+┌────────────────────────────────┐              ┌────────────────────────────────┐
+│   POSIX.1-2024 Standard APIs   │              │   GNU / glibc Extensions       │
+│  • openat / close_range / pipe2│              │  • getopt_long / asprintf      │
+│  • accept4 / ppoll / pselect   │              │  • execvpe / err.h             │
+│  • pthreads (robust mutexes)   │              │  • canonicalize_file_name      │
+│  • termios / POSIX real-time   │              │  • procfs & sysfs emulation    │
+└────────────────┬───────────────┘              └────────────────┬───────────────┘
+                 │                                               │
+                 └───────────────────────┬───────────────────────┘
+                                         │
+                 ┌───────────────────────┴───────────────────────┐
+                 │                                               │
+                 ▼                                               ▼
+┌─────────────────────────────────────────┐     ┌────────────────────────────────┐
+│         Rust System Layers              │     │       Kernel Boundary          │
+│  • libc: raw FFI C ABI                  │     │  • cgroups v2 resource tree    │
+│  • nix: safe Unix abstraction           │────▶│  • VFS descriptors             │
+│  • rustix: direct safe syscalls         │     │  • Signals & Real-time queue   │
+│  • uutils: pure Rust GNU coreutils      │     │  • Terminal driver (termios)   │
+└─────────────────────────────────────────┘     └────────────────────────────────┘
+```
+
+---
+
+## 2. Core POSIX.1-2024 Subsystems
+
+### 2.1 File System & Virtual File System (VFS)
+POSIX.1-2024 mandates directory-descriptor-relative (`*at`) system calls to avoid `TOCTOU` (Time-of-Check to Time-of-Use) race conditions and enables robust container and jail sandboxing:
+
+- **Relative Syscalls**: `openat`, `faccessat`, `fstatat`, `unlinkat`, `mkdirat`, `renameat`, `readlinkat`, `symlinkat`, `linkat`, `fchmodat`, `fchownat`, `utimensat`.
+- **Atomic Descriptors & Cleanup**:
+  - `close_range(first, last, flags)`: Atomically closes open file descriptors up to `last` (standardized in Issue 8).
+  - `pipe2(pipefd, flags)`: Creates pipe with `O_CLOEXEC` and `O_NONBLOCK` set atomically.
+  - `dup3(oldfd, newfd, flags)`: Atomic descriptor duplication with `O_CLOEXEC`.
+  - `preadv` & `pwritev`: Scatter-gather positional I/O without mutating file offset.
+
+#### Standard Open Flags (`<fcntl.h>`)
+| Flag | Description | Issue Introduced |
+| :--- | :--- | :--- |
+| `O_RDONLY` | Open read-only | POSIX.1-1988 |
+| `O_WRONLY` | Open write-only | POSIX.1-1988 |
+| `O_RDWR` | Open read-write | POSIX.1-1988 |
+| `O_CREAT` | Create file if not existing | POSIX.1-1988 |
+| `O_EXCL` | Atomic exclusive creation (with `O_CREAT`) | POSIX.1-1988 |
+| `O_NOCTTY` | Do not allocate controlling terminal | POSIX.1-1990 |
+| `O_TRUNC` | Truncate size to 0 | POSIX.1-1988 |
+| `O_APPEND` | Writes appended atomically | POSIX.1-1988 |
+| `O_NONBLOCK` | Non-blocking read/write | POSIX.1-1990 |
+| `O_CLOEXEC` | Close on execve() prevent descriptor leaks | POSIX.1-2008 |
+| `O_DIRECTORY` | Fail with `ENOTDIR` if not a directory | POSIX.1-2008 |
+| `O_NOFOLLOW` | Fail with `ELOOP` if trailing path is symlink | POSIX.1-2008 |
+| `O_SYNC` | Data and metadata synced before return | POSIX.1-1993 |
+| `O_DSYNC` | Data synced before return | POSIX.1-1993 |
+
+---
+
+### 2.2 Sockets & Network Multiplexing
+POSIX.1-2024 refines IPv4/IPv6 networking and high-performance multiplexing:
+
+- **`accept4(sockfd, addr, addrlen, flags)`**: Standardized in Issue 8; permits passing `SOCK_NONBLOCK` and `SOCK_CLOEXEC` directly during connection accept.
+- **`ppoll(fds, nfds, timeout, sigmask)`**: Nanosecond-resolution polling with atomic signal mask swapping.
+- **`pselect(nfds, readfds, writefds, exceptfds, timeout, sigmask)`**: High-resolution `select` variant.
+- **POSIX Sockets**: `socket`, `bind`, `listen`, `connect`, `send`, `recv`, `sendmsg`, `recvmsg`, `shutdown`, `getsockopt`, `setsockopt`, `getaddrinfo`, `freeaddrinfo`.
+
+---
+
+### 2.3 POSIX Threads (pthreads, IEEE Std 1003.1c)
+Issue 8 mandates full multithreading primitives and incorporates robust synchronization:
+
+#### Synchronization Primitives
+1. **Mutexes**: `pthread_mutex_init`, `pthread_mutex_lock`, `pthread_mutex_trylock`, `pthread_mutex_unlock`, `pthread_mutex_destroy`.
+   - Normal (`PTHREAD_MUTEX_NORMAL`): Undefined on double-lock; zero overhead.
+   - Error-Check (`PTHREAD_MUTEX_ERRORCHECK`): Returns `EDEADLK` on self re-lock; `EPERM` on unlocking thread non-owner.
+   - Recursive (`PTHREAD_MUTEX_RECURSIVE`): Re-entrant locking tracking lock count.
+   - **Robust Mutexes (`PTHREAD_MUTEX_ROBUST`)**: If the holding thread dies, waiting threads return `EOWNERDEAD`. The new holder calls `pthread_mutex_consistent()` to recover state.
+2. **Condition Variables**: `pthread_cond_init`, `pthread_cond_wait`, `pthread_cond_timedwait`, `pthread_cond_signal`, `pthread_cond_broadcast`.
+   - Supports monotonic clock deadline via `pthread_condattr_setclock(&attr, CLOCK_MONOTONIC)`.
+3. **Read-Write Locks (`pthread_rwlock_*`)**: Shared concurrent read locks with exclusive write serialization.
+4. **Barriers (`pthread_barrier_*`)**: Thread collection barrier waiting for `N` participants.
+5. **Spinlocks (`pthread_spin_*`)**: Low-latency user-space spin waiting for non-blocking critical sections.
+6. **Thread-Specific Data (TLS)**: `pthread_key_create(key, destructor)`, `pthread_setspecific`, `pthread_getspecific`.
+
+---
+
+### 2.4 Terminal Interfaces (`termios.h`)
+The POSIX terminal driver models raw, cbreak, and canonical terminal line discipline:
+
+- **Control Modes**:
+  - `c_iflag`: Input processing (`IGNBRK`, `BRKINT`, `IGNPAR`, `PARMRK`, `INPCK`, `ISTRIP`, `INLCR`, `IGNCR`, `ICRNL`, `IXON`, `IXOFF`).
+  - `c_oflag`: Output processing (`OPOST`, `ONLCR`, `OCRNL`, `ONOCR`, `ONLRET`).
+  - `c_cflag`: Hardware control (`CSIZE` [CS5, CS6, CS7, CS8], `CSTOPB`, `CREAD`, `PARENB`, `PARODD`, `HUPCL`, `CLOCAL`).
+  - `c_lflag`: Local line discipline (`ISIG`, `ICANON`, `ECHO`, `ECHOE`, `ECHOK`, `ECHONL`, `NOFLSH`, `TOSTOP`, `IEXTEN`).
+- **Special Characters (`c_cc`)**:
+  - `VINTR` (`^C`), `VQUIT` (`^\`), `VERASE` (`^?`), `VKILL` (`^U`), `VEOF` (`^D`), `VSUSP` (`^Z`).
+  - `VMIN` & `VTIME`: In non-canonical mode (`!ICANON`), govern minimum read byte count and inter-character timeout in deciseconds.
+- **Speed & Control Functions**:
+  - `tcgetattr(fd, termios_p)` & `tcsetattr(fd, optional_actions, termios_p)` (`TCSANOW`, `TCSADRAIN`, `TCSAFLUSH`).
+  - `cfsetispeed`, `cfsetospeed`, `cfgetispeed`, `cfgetospeed`.
+  - `tcsendbreak`, `tcdrain`, `tcflush`, `tcflow`.
+
+---
+
+### 2.5 Signals & Errno Code Directory
+
+#### Standard Signals (`<signal.h>`)
+| Signal | Typical # | Default Action | Catchable | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `SIGHUP` | 1 | Terminate | Yes | Hangup detected on controlling terminal |
+| `SIGINT` | 2 | Terminate | Yes | Interrupt from keyboard (`Ctrl+C`) |
+| `SIGQUIT` | 3 | Core Dump | Yes | Quit from keyboard (`Ctrl+\`) |
+| `SIGILL` | 4 | Core Dump | Yes | Illegal hardware instruction |
+| `SIGTRAP` | 5 | Core Dump | Yes | Trace/breakpoint trap |
+| `SIGABRT` | 6 | Core Dump | Yes | Abort signal from `abort()` |
+| `SIGBUS` | 7 | Core Dump | Yes | Memory bus error (unaligned/bad hardware address) |
+| `SIGFPE` | 8 | Core Dump | Yes | Erroneous arithmetic operation (e.g. division by zero) |
+| `SIGKILL` | 9 | Terminate | **No** | Immediate forced process termination |
+| `SIGUSR1` | 10 | Terminate | Yes | User-defined signal 1 |
+| `SIGSEGV` | 11 | Core Dump | Yes | Invalid virtual memory access (segmentation fault) |
+| `SIGUSR2` | 12 | Terminate | Yes | User-defined signal 2 |
+| `SIGPIPE` | 13 | Terminate | Yes | Broken pipe: write to pipe with no readers |
+| `SIGALRM` | 14 | Terminate | Yes | Timer signal from `alarm()` / `timer_settime()` |
+| `SIGTERM` | 15 | Terminate | Yes | Standard polite termination request |
+| `SIGCHLD` | 17 | Ignore | Yes | Child status change (stopped, continued, exited) |
+| `SIGCONT` | 18 | Continue | Yes | Continue executing if stopped |
+| `SIGSTOP` | 19 | Stop | **No** | Uncatchable execution pause |
+| `SIGTSTP` | 20 | Stop | Yes | Terminal stop signal (`Ctrl+Z`) |
+| `SIGTTIN` | 21 | Stop | Yes | Background process attempting terminal read |
+| `SIGTTOU` | 22 | Stop | Yes | Background process attempting terminal write (`TOSTOP`) |
+| `SIGURG` | 23 | Ignore | Yes | Urgent/out-of-band data on socket |
+| `SIGXCPU` | 24 | Core Dump | Yes | CPU limit exceeded (`RLIMIT_CPU`) |
+| `SIGXFSZ` | 25 | Core Dump | Yes | File size limit exceeded (`RLIMIT_FSIZE`) |
+| `SIGVTALRM`| 26 | Terminate | Yes | Virtual timer expired |
+| `SIGPROF` | 27 | Terminate | Yes | Profiling timer expired |
+| `SIGWINCH` | 28 | Ignore | Yes | Terminal window resize |
+| `SIGSYS` | 31 | Core Dump | Yes | Bad system call (seccomp BPF filter trip) |
+| `SIGRTMIN..SIGRTMAX` | 34..64 | Terminate | Yes | Real-time queueable signals with payload (`sigqueue`) |
+
+---
+
+## 3. GNU Standards & glibc Extensions
+
+### 3.1 GNU C Library (glibc) Function Extensions
+Many capabilities developed in GNU systems have become industry de-facto standards or were absorbed into POSIX.1-2024:
+
+1. **`getopt_long` and `getopt_long_only` (`<getopt.h>`)**:
+   - Parses POSIX single-character options (`-a`, `-v`) alongside GNU double-dash options (`--all`, `--output=file`).
+   - Supports `struct option { const char *name; int has_arg; int *flag; int val; }`.
+2. **`asprintf` & `vasprintf` (`<stdio.h>`)**:
+   - Dynamically allocates a buffer with `malloc()` sized to contain the formatted output.
+   - Formally adopted into **POSIX.1-2024**.
+3. **`canonicalize_file_name(const char *path)` (`<stdlib.h>`)**:
+   - Equivalent to `realpath(path, NULL)`; allocates canonical absolute path resolving all symlinks, `.`, and `..`.
+4. **`execvpe(const char *file, char *const argv[], char *const envp[])` (`<unistd.h>`)**:
+   - Combined `execvp` and `execve`: conducts `PATH` environment resolution while passing an explicit environment list `envp`.
+   - Standardized in **POSIX.1-2024**.
+5. **BSD / GNU `err.h` Utility Functions**:
+   - `err(eval, fmt, ...)` & `errx(eval, fmt, ...)`: Print formatted error followed optionally by `strerror(errno)` and exit with code `eval`.
+   - `warn(fmt, ...)` & `warnx(fmt, ...)`: Print warning to `stderr` without exiting.
+6. **`qsort_r` Re-entrant Sort**:
+   - Passes context pointer to comparison callback. Standardized in POSIX.1-2024 (using GNU parameter ordering: `compar(a, b, arg)`).
+7. **Stack String Allocation (`strdupa`, `strndupa`)**:
+   - Allocates duplicates using `alloca()` on the current stack frame, automatically reclaimed upon return.
+
+---
+
+### 3.2 Linux/GNU procfs & sysfs Emulation
+Portable software running under GNU/Linux relies on standard virtual filesystem layouts:
+- `/proc/self/fd/`: Directory of open file descriptors for the caller.
+- `/proc/self/exe`: Symbolic link to the executing binary.
+- `/proc/self/cmdline`: NUL-delimited process arguments.
+- `/proc/cpuinfo`: Hardware topology, core counts, and ISA capabilities.
+- `/proc/meminfo`: RAM utilization, buffer caches, and swap state.
+- `/sys/fs/cgroup/`: cgroups v2 unified control hierarchy.
+
+---
+
+### 3.3 Linux cgroups v2 to POSIX Mapping
+
+Modern container and isolation runtimes map Linux cgroups v2 onto traditional POSIX resource concepts:
+
+| cgroups v2 Controller | Control Interface File | Traditional POSIX Equivalent | Behavioral Mechanism |
+| :--- | :--- | :--- | :--- |
+| **`cpu`** | `cpu.max` / `cpu.weight` | `nice()` / `setpriority()` / `sched_setscheduler()` | Proportional CFS runtime quotas vs. priority scheduling |
+| **`memory`** | `memory.max` / `memory.high` | `setrlimit(RLIMIT_AS, RLIMIT_DATA)` | Hard ceiling OOM vs. `ENOMEM` allocation returns |
+| **`pids`** | `pids.max` / `pids.current` | `setrlimit(RLIMIT_NPROC)` | Fork bomb protection returning `EAGAIN` |
+| **`io`** | `io.max` / `io.weight` | `posix_fadvise()` / `sync()` | Per-block device I/O bandwidth and IOPS rate limits |
+| **`freezer`** | `cgroup.freeze` | `kill(-pgid, SIGSTOP)` / `SIGCONT` | Atomic kernel freeze without generating process signals |
+
+---
+
+## 4. Modern Rust Implementation Layers
+
+Systems written in Rust implement POSIX and GNU abstractions across four primary tiers:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    uutils-coreutils                         │
+│   (100+ pure Rust GNU coreutils utilities: ls, cat, etc.)   │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+               ┌───────────────┴───────────────┐
+               ▼                               ▼
+┌─────────────────────────────┐ ┌─────────────────────────────┐
+│             nix             │ │           rustix            │
+│  (Safe, idiomatic Unix APIs,│ │  (Direct safe system calls, │
+│   wrapping platform libc)   │ │   pure assembly on Linux)   │
+└──────────────┬──────────────┘ └──────────────┬──────────────┘
+               │                               │ (fallback)
+               ▼                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                            libc                             │
+│       (Raw C FFI ABI bindings for all POSIX/GNU types)      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 4.1 Comparison Matrix
+
+| Layer | Crate | Philosophy | Memory Safety | Kernel Syscall Dispatch |
+| :--- | :--- | :--- | :--- | :--- |
+| **Raw ABI** | `libc` | Direct `extern "C"` declarations | 100% `unsafe` code | Delegates to platform `libc.so` |
+| **Safe Unix** | `nix` | Idiomatic Rust structs, bitflags, `Result` | Safe Rust boundary | Calls `libc` functions under the hood |
+| **Zero-Cost Syscalls** | `rustix` | Direct inline assembly system calls | Safe lifetimes (`BorrowedFd`, `OwnedFd`) | Direct Linux kernel syscalls; libc fallback on BSD |
+| **GNU Userland** | `uutils` | Pure Rust GNU Coreutils reimplementation | 100% Safe memory architecture | Uses `rustix` and `nix` for OS primitives |
+
+---
+
+### 4.2 Systems Code Comparison: Relative File Open
+
+#### 1. Raw `libc` (POSIX C FFI)
+```rust
+use std::ffi::CString;
+use std::os::unix::io::RawFd;
+
+unsafe fn open_file_libc(dirfd: RawFd, filename: &str) -> Result<RawFd, i32> {
+    let path = CString::new(filename).map_err(|_| libc::EINVAL)?;
+    let fd = libc::openat(
+        dirfd,
+        path.as_ptr(),
+        libc::O_RDONLY | libc::O_CLOEXEC | libc::O_NOFOLLOW,
+    );
+    if fd < 0 {
+        Err(*libc::__errno_location())
+    } else {
+        Ok(fd)
+    }
+}
+```
+
+#### 2. `nix` (Safe POSIX Wrapper)
+```rust
+use nix::fcntl::{openat, OFlag};
+use nix::sys::stat::Mode;
+use std::os::unix::io::{AsRawFd, OwnedFd};
+use std::path::Path;
+
+fn open_file_nix<P: AsRef<Path>>(dirfd: &impl AsRawFd, path: &P) -> nix::Result<OwnedFd> {
+    openat(
+        dirfd.as_raw_fd(),
+        path.as_ref(),
+        OFlag::O_RDONLY | OFlag::O_CLOEXEC | OFlag::O_NOFOLLOW,
+        Mode::empty(),
+    )
+}
+```
+
+#### 3. `rustix` (Direct Fast Syscall with Lifetimes)
+```rust
+use rustix::fs::{openat, Mode, OFlags};
+use rustix::fd::{AsFd, OwnedFd};
+use std::path::Path;
+
+fn open_file_rustix<P: AsRef<Path>>(dirfd: impl AsFd, path: P) -> rustix::io::Result<OwnedFd> {
+    openat(
+        dirfd,
+        path.as_ref(),
+        OFlags::RDONLY | OFlags::CLOEXEC | OFlags::NOFOLLOW,
+        Mode::empty(),
+    )
+}
+```
+
+---
+
+## 5. TypeScript Standards Loader Integration
+
+The `yolo-standards` TypeScript engine integrates the POSIX.1-2024 and GNU specifications:
+
+```typescript
+import { StandardsLoader } from "yolo-standards";
+
+const loader = new StandardsLoader();
+const posix = await loader.loadPosix();
+
+console.log(`Standard: ${posix.standard.name} (${posix.standard.edition})`);
+console.log(`Syscalls count: ${posix.syscalls.length}`);
+console.log(`POSIX-2024 additions: ${posix.syscalls.filter(s => s.introducedIn2024).map(s => s.name).join(", ")}`);
+console.log(`GNU extensions: ${posix.gnuExtensions.functions.map(f => f.name).join(", ")}`);
+```
+
+---
+
+## 6. Verification and Compliance Checklist
+
+- [x] **POSIX.1-2024 (IEEE 1003.1-2024 / Issue 8)**: Standardized syscalls, `close_range`, `pipe2`, `dup3`, `accept4`, `ppoll`, `pselect`, `posix_spawn`.
+- [x] **Virtual File System (VFS)**: Relative `*at` functions, atomic `O_CLOEXEC`, file locks.
+- [x] **Pthreads**: Complete synchronization taxonomy, robust mutex recovery (`pthread_mutex_consistent`).
+- [x] **Termios**: Complete input/output/control/local flags, baud rates, non-canonical `VMIN`/`VTIME` semantics.
+- [x] **Signals & Errno**: Standard POSIX signals, real-time queues, errno constants (`EPERM` to `ENOTRECOVERABLE`).
+- [x] **GNU / glibc Compatibility**: `getopt_long`, `asprintf`, `canonicalize_file_name`, `execvpe`, `err.h`, `qsort_r`, procfs, cgroups v2.
+- [x] **Rust System Stack**: `libc`, `nix`, `rustix`, `uutils-coreutils` mappings and safe abstractions.

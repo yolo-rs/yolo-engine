@@ -1,0 +1,22 @@
+{
+  "dateUtc": "2026-11-04T20:40:33.2178503Z",
+  "upstreamCommit": "e57d89ba63a7504957faa2ccc8f416ce2fb15453",
+  "patchSha256": "14b6eb55ef423c81175a55822c9420030ace0703c061422b8d9f355ca9e6410e",
+  "sourceGuardSha256": "79ec383e795606a3695eb949a82d27b283afbc0a5dea7218de56efc753b8c05e",
+  "sourceGuardTestSha256": "6dc2eb588c8c03ebe59607074edfa531da632ec5f41dd78b0a609469c67a9ecc",
+  "bunSha256": "f424e283c15b8b19f59f054abcba462afab46fdcce44721b0f1167eaa67f2864",
+  "comparisonDateUtc": "2026-11-04T20:44:36Z",
+  "comparisonScriptSha256": "aa4f9e99ab12f5b4b67f882f4db957cf43739ee0f7fdad737cdd4acc6cf2a2dc",
+  "bindgenComparisonDateUtc": "2026-11-04T20:46:06Z",
+  "bindgenComparisonScriptSha256": "b7762d6baf3ba933e246c625a851f39aeab6de4e0aa6e3e14771a442ffc1deff",
+  "observations": [
+    "original Windows AOT generation failed due to command length",
+    "builtins argument length changed from 13918 to 7958 characters",
+    "patched retry generated builtins table and bindgen outputs",
+    "all 149 src/**/*.bind.ts paths resolve to identical file URLs in relative and absolute form from the checkout root",
+    "in-memory AOT builtins generator comparison: 149 schema paths, 6 engine, 6 table and 14 codegen outputs plus dump and summary identical",
+    "bindgen comparison in independent processes: 307 codegen files and one types file byte-identical for 149 schema paths",
+    "3 patch containment tests passed; bun check and lint passed"
+  ],
+  "limitations": "release build failed later because atlstr.h was unavailable; runtime performance not verified. Comparisons cover this checkout and Windows configuration only; the AOT comparison runs both generations in one process."
+}

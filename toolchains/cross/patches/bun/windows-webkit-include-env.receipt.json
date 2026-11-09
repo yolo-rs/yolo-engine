@@ -1,0 +1,9 @@
+{
+  "dateUtc": "2026-11-04T21:18:09Z",
+  "negativeCasesDateUtc": "2026-11-04T21:18:47Z",
+  "scriptSha256": "53058da37d394a74b4fbb4b4541225b352f67dd59801d0b2101b2f55518e11a3",
+  "manifestSha256": "4f26e3c22ac0c909e670f18a595646fa18a8d9b7f45a11c233fbf906c6aaf4f2",
+  "bunSha256": "f424e283c15b8b19f59f054abcba462afab46fdcce44721b0f1167eaa67f2864",
+  "results": ["INCLUDE with 14.44 first: match, exit 0", "INCLUDE with 14.51 first: mismatch, exit 1", "unknown WebKit revision: exit 1", "empty INCLUDE: exit 1"],
+  "scope": "INCLUDE ordering and one header fingerprint only; explicit compiler flags and other include paths may override this order."
+}

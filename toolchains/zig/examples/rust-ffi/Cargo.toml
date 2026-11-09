@@ -1,0 +1,9 @@
+[package]
+name = "yolo-zig-ffi-example"
+version = "0.1.0"
+edition = "2024"
+publish = false
+build = "build.rs"
+
+[dependencies]
+yolo-zig-ffi = { path = "../../crates/yolo-zig-ffi", features = ["link-yolo-zig"] }

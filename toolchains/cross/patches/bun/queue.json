@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "upstreamCommit": "e57d89ba63a7504957faa2ccc8f416ce2fb15453",
+  "patches": [
+    {
+      "file": "windows-codegen-relative-paths.patch",
+      "sha256": "14b6eb55ef423c81175a55822c9420030ace0703c061422b8d9f355ca9e6410e"
+    }
+  ]
+}

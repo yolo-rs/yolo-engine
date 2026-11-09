@@ -1,0 +1,19 @@
+# Linux Kernel Architecture: cgroups v2, sysfs, eBPF
+
+Linux kernel user-space interfaces provide resource isolation, hardware abstraction, and dynamic in-kernel execution.
+
+## Components
+
+- **cgroups v2**: Unified hierarchy managing CPU, memory, IO, and PIDs with root pressure metrics.
+- **sysfs**: Virtual filesystem presenting device drivers, buses, classes, and power parameters.
+- **eBPF (Extended Berkeley Packet Filter)**: Safe, sandboxed bytecode verified and executed directly inside kernel hooks (XDP, tracepoints, kprobes, socket ops).
+
+## Usage
+
+```typescript
+import { StandardsLoader } from "yolo-standards";
+
+const loader = new StandardsLoader();
+const linux = await loader.loadLinux();
+console.log(`Linux Controllers: ${linux.cgroupsV2.controllers.join(", ")}`);
+```

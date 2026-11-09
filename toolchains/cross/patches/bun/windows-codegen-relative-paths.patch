@@ -1,0 +1,32 @@
+diff --git a/scripts/build/aot.ts b/scripts/build/aot.ts
+--- a/scripts/build/aot.ts
++++ b/scripts/build/aot.ts
+@@ -1,5 +1,5 @@
+ import { readdirSync } from "node:fs";
+-import { resolve } from "node:path";
++import { relative, resolve } from "node:path";
+ import { crateOf, debugFlag, shJoin, typesOnlyFlag, type Ctx } from "./codegen.ts";
+ import type { CodegenFields } from "./config.ts";
+ import { assert } from "./error.ts";
+@@ -230,7 +230,7 @@ export function emitBuiltinsTable({ n, cfg, sources, o, dirStamp, engine }: Ctx)
+         "run",
+         script,
+         `--codegen-path=${cfg.codegenDir}`,
+         `--target=${builtinTableTarget(cfg)}`,
+-        `--sources=${sources.bindgen.map(src => `${crateOf(src)}=${src}`).join(",")}`,
++        `--sources=${sources.bindgen.map(src => `${crateOf(src)}=${relative(cfg.cwd, src)}`).join(",")}`,
+         `--engine-directory=${engine.directory}`,
+         ...(engine.javaScriptCore === undefined
+           ? [`--prebuilt-generated=${engine.builtinsGeneratedDirectory}`]
+diff --git a/scripts/build/codegen.ts b/scripts/build/codegen.ts
+--- a/scripts/build/codegen.ts
++++ b/scripts/build/codegen.ts
+@@ -980,7 +980,7 @@ export function emitBindgen({ n, cfg, sources, o, dirStamp, engine }: Ctx): void
+       args: shJoin(cfg, [
+         script,
+         // Every schema: build/types is shared by every profile, so Bindgen.d.ts describes them all.
+-        `--sources=${sources.bindgen.map(src => `${crates.get(src)}=${src}`).join(",")}`,
++        `--sources=${sources.bindgen.map(src => `${crates.get(src)}=${relative(cfg.cwd, src)}`).join(",")}`,
+         typesOnlyFlag(cfg, sources),
+         `--codegen-path=${cfg.codegenDir}`,
+         `--types-path=${cfg.typesDir}`,

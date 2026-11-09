@@ -1,0 +1,173 @@
+# Modern CPU Architectures & Microarchitecture Reference
+
+Authoritative engineering and systems programming specification covering modern CPU architectures, microarchitecture levels (`x86-64-v1` through `v4`), vector computing extensions, hardware-enforced security, enterprise server silicon, and mobile/workstation SoCs.
+
+---
+
+## 1. x86-64 Microarchitecture Levels (v1 through v4)
+
+The x86-64 microarchitecture levels were collaboratively established by Red Hat, SUSE, Intel, and AMD to allow toolchains, distributions (glibc, RHEL, openSUSE, Arch Linux), and JIT engines to target feature baselines without lowest-common-denominator fallback to 2003 hardware.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                      x86-64 Architecture Baseline Levels               │
+├────────────────────────────────────────────────────────────────────────┤
+│ Level   │ Baseline Year │ Key Architectural Extensions                │
+├─────────┼───────────────┼──────────────────────────────────────────────┤
+│ v1      │ 2003 (AMD64)  │ CMOV, CX8, FPU, FXSR, MMX, OSFXSR, SCE, SSE, │
+│         │               │ SSE2                                         │
+├─────────┼───────────────┼──────────────────────────────────────────────┤
+│ v2      │ ~2009 (Nehalem│ CMPXCHG16B, LAHF-SAHF, POPCNT, SSE3,         │
+│         │  / Bulldozer) │ SSSE3, SSE4_1, SSE4_2                        │
+├─────────┼───────────────┼──────────────────────────────────────────────┤
+│ v3      │ ~2015 (Haswell│ AVX, AVX2, BMI1, BMI2, F16C, FMA, LZCNT,     │
+│         │  / Excavator) │ MOVBE, OSXSAVE                               │
+├─────────┼───────────────┼──────────────────────────────────────────────┤
+│ v4      │ ~2017 (Skylake│ AVX-512F, AVX-512BW, AVX-512CD, AVX-512DQ,   │
+│         │  -SP / Zen 4) │ AVX-512VL                                    │
+└─────────┴───────────────┴──────────────────────────────────────────────┘
+```
+
+### Compiler Invocations & Optimization
+- **GCC / Clang**: `-march=x86-64-v2`, `-march=x86-64-v3`, `-march=x86-64-v4`.
+- **Rust `rustc`**: `-C target-cpu=x86-64-v3` or `-C target-feature=+avx2,+fma,+bmi2`.
+- **Dynamic Glibc HWCAPS**: Dynamically loaded libraries placed in `/usr/lib64/glibc-hwcaps/x86-64-v3/` automatically load at runtime when hardware capability is present.
+
+---
+
+## 2. Intel Cutting-Edge Architecture
+
+### 2.1 Intel APX (Advanced Performance Extensions)
+Intel APX doubles the general-purpose register (GPR) file without increasing code size or pipeline overhead:
+- **32 General Purpose Registers**: Expands `RAX`-`R15` with 16 additional registers: `R16`-`R31` (64-bit integer registers).
+- **REX2 and EVEX Prefixes**: Non-vector integer instructions can use EVEX prefixing to encode 32 GPRs.
+- **Three-Operand Non-Destructive Instructions (NDD)**:
+  ```nasm
+  ; Legacy 2-operand: destroys rax
+  add rax, rbx
+
+  ; APX 3-operand NDD: preserves source registers
+  add r16, rax, rbx
+  ```
+- **Conditional Operations (CCMP / CTEST)**:
+  Enables conditional evaluation without branches, reducing branch predictor pressure and pipeline flushes:
+  ```nasm
+  cmp rax, rbx
+  ccmpe rcx, rdx    ; Evaluates only if previous cmp was equal
+  ```
+- **Push2 / Pop2**: Decreases stack frame setup overhead by pushing and popping register pairs in a single operation.
+- **`JMPABS`**: Direct 64-bit absolute address jumping, eliminating indirect jump table trampolines.
+
+### 2.2 Intel AVX10 Converged Vector Architecture
+AVX10 unifies Intel's vector instruction set across Performance cores (P-cores) and Efficient cores (E-cores):
+- **Problem Solved**: Alder Lake / Raptor Lake hybrid cores forced disabling AVX-512 because Gracemont E-cores lacked AVX-512 execution units.
+- **AVX10.1**: Introduced in Xeon Granite Rapids (512-bit vector length on P-cores).
+- **AVX10.2**: Introduces converged 256-bit vector operations across both P-cores and E-cores (e.g. Clearwater Forest), while maintaining full AVX-512 semantics, masking, and rounding controls.
+- **CPUID Leaf 24H**: Applications query AVX10 support and vector width ceiling (`256` or `512` bits).
+
+### 2.3 Intel AMX (Advanced Matrix Extensions)
+AMX is dedicated silicon hardware acceleration for deep learning, matrix multiplication (GEMM), and systolic tensor calculation:
+- **Architecture**: 8 2D tile registers (`TMM0` through `TMM7`), each up to 1 KiB in size (8 KiB total state).
+- **Tile Configuration**: Configured via `LDTILECFG` and released via `TILERELEASE`.
+- **TMUL (Tile Matrix Multiply)**:
+  - `TDPBUSD`: Dot product of signed/unsigned 8-bit integers with 32-bit accumulation.
+  - `TDPBF16PS`: Dot product of bfloat16 pairs into single-precision float accumulation.
+  - `TDPFP16PS`: Half-precision IEEE 754 float accumulation.
+
+### 2.4 Control Flow & Hardware Security Extensions
+- **FRED (Flexible Return and Event Delivery)**:
+  Replaces legacy interrupt handling (`IDT`) and `IRET` with low-latency software-specified ring transitions, eliminating stack frame overhead and IDT vulnerability surface.
+- **LKGS (Load Kernel GS Base)**: Efficient loading of `%gs` base register in user/kernel boundary.
+- **LAM (Linear Address Masking)**: Allows software to use untranslated upper address bits (6 or 15 bits) for metadata tagging (similar to ARM Top-Byte-Ignore).
+- **Key Locker**: Wraps AES cryptographic keys in hardware handles (`LOADIWKEY`), mitigating cold-boot and heartbleed-style plaintext key exfiltration from RAM.
+
+---
+
+## 3. AMD Zen 4 and Zen 5 Architectures
+
+### 3.1 Zen 4 vs Zen 5 Microarchitecture
+- **Zen 4 (Genoa / Raphael)**:
+  - Dual 256-bit SIMD execution units pumping 512-bit AVX-512 operations in two clock cycles (double-pumped).
+  - Introduction of full AVX-512 instruction set without frequency downclocking (zero AVX frequency penalty).
+- **Zen 5 (Turin / Granite Ridge / Strix Point)**:
+  - Native **512-bit full-width execution data path**.
+  - Dual 512-bit FADD and FMUL units.
+  - 6-wide decode, 8-wide dispatch/retire engine.
+  - 48 KiB 12-way L1 data cache and 4 MiB L2 cache per core complex.
+
+### 3.2 AMD Hardware Security & Virtualization
+- **AMD SEV-SNP (Secure Encrypted Virtualization - Secure Nested Paging)**:
+  Hardware-enforced memory encryption with integrity protection against untrusted hypervisors (memory replay, memory corruption, and state injection attacks).
+- **Bus Lock Trap**: Allows the OS or hypervisor to trap unaligned atomic bus locks, mitigating denial-of-service performance degradation across multi-socket systems.
+
+---
+
+## 4. Modern ARM Architectures (ARMv9.0-A through ARMv9.4-A)
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                         ARMv9 Architecture Pipeline                    │
+├────────────────────────────────────────────────────────────────────────┤
+│ Extension │ Purpose                                                    │
+├───────────┼────────────────────────────────────────────────────────────┤
+│ SVE2      │ Scalable Vector Extension 2 (128-bit to 2048-bit agnostic) │
+│ SME / SME2│ Scalable Matrix Extension (Streaming Mode, Outer-Product)   │
+│ PAC       │ Pointer Authentication Codes (Cryptographic Return Defense)│
+│ BTI       │ Branch Target Identification (Indirect branch landing pads)│
+│ MTE       │ Memory Tagging Extension (Hardware spatial/temporal safety)│
+│ RME / CCA │ Realm Management Extension / Confidential Compute Arch     │
+└───────────┴────────────────────────────────────────────────────────────┘
+```
+
+### 4.1 SVE2 (Scalable Vector Extension 2)
+- Replaces fixed 128-bit Neon with vector-length-agnostic SIMD instructions (128, 256, 512, up to 2048 bits).
+- Hardware defines vector register length (`Z0`-`Z31`), while binaries execute unmodified on any hardware width.
+- Incorporates DSP and multimedia primitives, bit-permutes, cryptography acceleration (AES, SHA-3, SM4).
+
+### 4.2 SME and SME2 (Scalable Matrix Extension)
+- **Streaming SVE Mode**: Dynamic switch (`PSTATE.SM = 1`) into streaming SIMD mode with dedicated matrix tiles (`ZA0`-`ZA3`).
+- **Outer Product Engines**: Performs continuous 2D matrix accumulation without memory roundtrips.
+- **SME2**: Multi-vector instructions (operating on 2 or 4 vector registers simultaneously) and direct lookup table operations for transformer model inference.
+
+### 4.3 Pointer Authentication (PAC) and BTI
+- **PAC**: Cryptographic signature added to upper bits of pointers using hardware keys. Verified via `AUTIA` / `AUTIB` before return or call.
+- **BTI**: Hardware enforcement requiring indirect jump destinations to begin with a valid landing instruction (`BTI c`, `BTI j`), preventing ROP/JOP gadgets.
+
+### 4.4 MTE (Memory Tagging Extension)
+- Uses top 4 bits of 64-bit pointers to store a key tag.
+- Memory allocations tag 16-byte granules in physical memory.
+- Pointer dereferences check matching tag in silicon; mismatches raise synchronous or asynchronous `SIGSEGV` faults, eliminating use-after-free and buffer-overflow attacks.
+
+---
+
+## 5. Apple Silicon & Qualcomm Oryon Custom Silicon
+
+### 5.1 Apple Silicon (M3 / M4)
+- **Dynamic Caching**:
+  Hardware-based dynamic cache allocation that provisions exact local on-chip SRAM to GPU shaders and CPU neural engines in real time, drastically improving memory utilization.
+- **Apple SME Matrix Coprocessor**:
+  High-throughput proprietary matrix accelerator tightly coupled with unified memory architecture (UMA) providing up to 800+ GB/s memory bandwidth.
+- **Hardware Ray Tracing & Mesh Shading**: Embedded dedicated BVH traversal units.
+
+### 5.2 Qualcomm Oryon (Snapdragon X Elite / X Plus)
+- Custom ARM64 microarchitecture designed by NUVIA team:
+  - 12-core configurations up to 4.3 GHz single-core boost.
+  - 8-wide decode out-of-order architecture with large ROB (Reorder Buffer).
+  - 45 TOPS Hexagon NPU integrated for ONNX and direct DirectML/CoreML workloads.
+
+---
+
+## 6. Hyperscale Server Architectures
+
+### 6.1 Intel Xeon Granite Rapids & Sierra Forest
+- **Granite Rapids (P-Core)**: Intel 3 process, Redwood Cove architecture, native AVX10.1 and AMX FP16, DDR5 8800 MT/s MRDIMM support.
+- **Sierra Forest (E-Core)**: Up to 288 Sierra Glen efficient cores per socket, high throughput cloud-native workloads.
+
+### 6.2 AMD EPYC 9005 Series (Turin)
+- Up to 192 Zen 5c cores or 128 Zen 5 cores on TSMC 3nm/4nm process.
+- 512-bit native AVX-512 execution pipeline, 12-channel DDR5-6400 memory subsystems.
+
+### 6.3 Hyperscale Cloud Silicon
+- **AWS Graviton 4**: Neoverse-V2 cores, 96 cores per socket, SVE2 4x128-bit vector pipelines, 75% higher memory bandwidth than Graviton 3.
+- **Google Axion**: Custom ARM Neoverse-V2 processor designed for Google Cloud Borg compute infrastructure.
+- **AmpereOne**: Up to 192 single-threaded custom ARM cores, 2MB private L2 cache per core.

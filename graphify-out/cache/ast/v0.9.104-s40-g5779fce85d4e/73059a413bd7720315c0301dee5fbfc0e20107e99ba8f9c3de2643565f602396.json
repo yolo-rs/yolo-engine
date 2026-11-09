@@ -1,0 +1,1 @@
+{"nodes": [{"id": "pkg_epic_games_eos_sys", "label": "epic-games-eos-sys", "file_type": "code", "type": "package", "ecosystem": "cargo", "source_file": "Engine/Source/ThirdParty/EOSSDK/epic-games-eos-sys/Cargo.toml", "source_location": "L1"}], "edges": []}
